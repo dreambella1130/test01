@@ -1,0 +1,68 @@
+@CHARSET "UTF-8";
+
+.margin
+{
+	margin-left: 15px;
+	margin-right: 15px;
+}
+.UDmargin
+{
+	margin-top: 10px;
+	margin-bottom: 20px;
+	padding-left: 20px;
+	padding-right: 20px;
+}
+
+.nickMargin {margin-bottom: 20px;}
+.ectMargin
+{
+	margin-top: 50px;	
+}
+
+.replMargin
+{
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+.replMargin2
+{
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 20px;
+}
+
+.replTime
+{
+	font-weight: normal;
+	color: gray;
+}
+
+.replGubun
+{
+	border-width: 2px;
+	border-top-style: dashed;
+}
+
+.flotR
+{
+	float: right;
+	text-align: right;
+}
+
+.replBtn
+{
+	border-style: solid;
+	border-width: 1px;
+	border-color: lightgrey;
+	border-radius: 5px;
+	text-align: center;
+	height: 70px;
+	padding: 38% 5px 0 5px;
+}
+
+.replBtn:hover
+{
+	background-color: lightgray;
+	cursor: pointer;
+}

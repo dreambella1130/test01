@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.test.prj01.dao.IBoardMapper">
+  
+	<!-- 게시판 목록 가져오기 -->
+	<select id="selectBoardList" resultType="java.util.Map">
+  	<![CDATA[
+		SELECT ROW_NUMBER() OVER(ORDER BY BD_GRP_SID, BD_GRP_LV) AS "NUM"
+    		, BD_SID
+    		, BD_GRP_SID
+    		, BD_GRP_LV
+    		, BD_GRP_DEP
+    		, BD_TITLE
+    		, CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(BD_REGI, 'YYYYMMDD') THEN TO_CHAR(BD_REGI, 'HH24:MI')
+        		ELSE TO_CHAR(BD_REGI, 'YY.MM.DD')
+        		END AS "BD_REGI"
+        	, (SELECT COUNT(*) FROM BD_REPL B WHERE B.BD_SID = A.BD_SID) AS "REPLCOUNT"
+    		, BD_CLI
+    		, BD_DELCK
+    		, (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
+    		, BD_LIKE
+    		, BD_BLCK
+		FROM BOARD A
+		WHERE ROWNUM < 10
+		ORDER BY BD_GRP_SID, BD_GRP_LV
+  	]]>
+  	</select>
+  	
+  	<resultMap id="ContMap" type="java.util.Map">   
+        <result property="BD_SID" column="BD_SID" />
+        <result property="BD_TITLE" column="BD_TITLE" />
+        <result property="MEM_NICK" column="MEM_NICK" />
+        <result property="BD_CLI" column="BD_CLI"/>
+        <result property="BD_LIKE" column="BD_LIKE"/>
+        <result property="BD_REGI" column="BD_REGI" />
+        <result property="BD_CONT" column="BD_CONT" jdbcType="CLOB" javaType="java.lang.String"/>
+        <result property="REPLCOUNT" column="REPLCOUNT"/>
+    </resultMap>
+  
+ 	<!-- 게시글 가져오기 -->
+	<select id="selectBDDetail" parameterType="String" resultMap="com.test.prj01.dao.IBoardMapper.ContMap" >
+	<![CDATA[
+		SELECT BD_SID, BD_TITLE
+		    , (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
+		    , BD_CLI
+		    , BD_LIKE
+		    , TO_CHAR(BD_REGI, 'YYYY.MM.DD HH24:MI') AS "BD_REGI"
+		    , BD_CONT
+		     , (SELECT COUNT(*) FROM BD_REPL B WHERE B.BD_SID = #{bdSid }) AS "REPLCOUNT"
+		FROM BOARD
+		WHERE BD_SID = #{bdSid }
+	]]>
+	</select>
+  
+  	<!-- 게시글에 맞는 댓글 조회 -->
+  	<select id="selectBDRepl" parameterType="String" resultType="java.util.Map" >
+  	<![CDATA[
+  		SELECT REPL_SID
+  			, REPL_GRP
+  			, REPL_LV
+  			, REPL_DEPT
+  			, REPL_CONT
+		    , CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(REPL_REGI, 'YYYYMMDD') THEN TO_CHAR(REPL_REGI, 'HH24:MI')
+		        ELSE TO_CHAR(REPL_REGI, 'YY.MM.DD')
+		        END AS "REPL_REGI"
+		    , REPL_DELCK
+		    , REPL_BLCK
+		    , BD_SID
+		    , (SELECT MEM_NICK FROM MEM_INFO WHERE MEM_SID = A.MEM_SID) AS "MEM_NICK"
+		    , MEM_SID
+		FROM BD_REPL A
+		WHERE BD_SID = #{bdSid }
+		ORDER BY REPL_LV
+  	]]>
+  	</select>
+  	
+  	<!-- 게시글 번호 조회 -->
+  	<select id="selectBDSID" resultType="String">
+  	<![CDATA[
+  		SELECT SEQ_BOARD.NEXTVAL FROM DUAL
+  	]]>
+  	</select>
+  	
+  	<!-- 게시글 작성 -->
+  	<select id="insertBDCont" parameterType="java.util.Map">
+  	<![CDATA[
+  		INSERT INTO BOARD
+  			( BD_SID
+  			, BD_GRP_SID
+  			, BD_GRP_LV
+  			, BD_GRP_DEP
+  			, GUBUN_SID
+  			, BD_TITLE
+  			, BD_CONT
+  			, BD_REGI
+  			, BD_UPDT
+  			, BD_CLI
+  			, BD_DELCK
+  			, BD_LIKE
+  			, BD_BLCK
+  			, MEM_SID ) VALUES
+  			(#{bdSID }, #{bdSID }, 1, 0, 1, #{bdTitle }, #{bdContent }, SYSDATE, SYSDATE, 0, 'N', 0, 0, 1)
+  	]]>
+  	</select>
+  	
+</mapper>
