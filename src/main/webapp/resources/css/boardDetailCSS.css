@@ -66,3 +66,16 @@
 	background-color: lightgray;
 	cursor: pointer;
 }
+
+.marginBottom
+{
+	margin-top: 100px;
+	margin-bottom: 15px;
+}
+
+.replCount
+{
+	font-weight: bold;
+	color: #d82746;
+	text-decoration: underline;
+}

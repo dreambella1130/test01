@@ -6,32 +6,157 @@
 <mapper namespace="com.test.prj01.dao.IBoardMapper">
   
 	<!-- 게시판 목록 가져오기 -->
-	<select id="selectBoardList" resultType="java.util.Map">
+	<select id="selectBoardList" parameterType="java.util.Map" resultType="java.util.Map">
   	<![CDATA[
-		SELECT ROW_NUMBER() OVER(ORDER BY BD_GRP_SID, BD_GRP_LV) AS "NUM"
-    		, BD_SID
-    		, BD_GRP_SID
-    		, BD_GRP_LV
-    		, BD_GRP_DEP
-    		, BD_TITLE
+  		SELECT *
+  		FROM
+  		(
+			SELECT ROW_NUMBER() OVER(ORDER BY BD_GRP_SID DESC, BD_GRP_LV) AS "NUM"
+	    		, BD_SID
+	    		, BD_GRP_SID
+	    		, BD_GRP_LV
+	    		, BD_GRP_DEP
+	    		, BD_TITLE
+	    		, CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(BD_REGI, 'YYYYMMDD') THEN TO_CHAR(BD_REGI, 'HH24:MI')
+	        		ELSE TO_CHAR(BD_REGI, 'YY.MM.DD')
+	        		END AS "BD_REGI"
+	        	, (SELECT COUNT(*) FROM BD_REPL B WHERE B.BD_SID = A.BD_SID) AS "REPLCOUNT"
+	    		, BD_CLI
+	    		, BD_DELCK
+	    		, (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
+	    		, BD_LIKE
+	    		, CASE WHEN BD_BLCK < 1 THEN 'N'
+	            	ELSE 'Y'
+	        		END AS "BD_BLCK"
+			FROM BOARD A
+			WHERE BD_DELCK = 'N'
+		)
+  	]]>
+  		<where>
+  			<if test="startN != null and startN != '' and endN != null and endN != ''">
+  			<![CDATA[
+  				NUM BETWEEN #{startN} AND #{endN}
+  			]]>
+  			</if>
+  			<if test="bdSid != null and bdSid !=''">
+  				AND BD_SID = #{bdSid}
+  			</if>
+  		</where>
+  	</select>
+  	
+  	<!-- 윗(다음) 글_1-->
+  	<select id="selectNextGesi_1" parameterType="java.util.Map" resultType="java.util.Map">
+  	<![CDATA[
+		SELECT BD_SID
+			, BD_GRP_SID
+			, BD_GRP_LV
+			, BD_TITLE
     		, CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(BD_REGI, 'YYYYMMDD') THEN TO_CHAR(BD_REGI, 'HH24:MI')
-        		ELSE TO_CHAR(BD_REGI, 'YY.MM.DD')
-        		END AS "BD_REGI"
-        	, (SELECT COUNT(*) FROM BD_REPL B WHERE B.BD_SID = A.BD_SID) AS "REPLCOUNT"
-    		, BD_CLI
-    		, BD_DELCK
-    		, (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
-    		, BD_LIKE
-    		, BD_BLCK
-		FROM BOARD A
-		WHERE ROWNUM < 10
-		ORDER BY BD_GRP_SID, BD_GRP_LV
+		        ELSE TO_CHAR(BD_REGI, 'YYYY.MM.DD')
+		        END AS "BD_REGI"
+		    , CASE WHEN BD_BLCK < 1 THEN 'N'
+            	ELSE 'Y'
+        		END AS "BD_BLCK"
+		FROM BOARD
+		WHERE BD_GRP_SID = #{bd_grp_sid} AND BD_GRP_LV = (#{bd_grp_LV}-1) AND BD_DELCK = 'N'
   	]]>
   	</select>
   	
+  	<!-- 윗(다음) 글_2-->
+  	<select id="selectNextGesi_2" parameterType="java.util.Map" resultType="java.util.Map">
+  	<![CDATA[
+		SELECT BD_SID
+			, BD_GRP_SID
+			, BD_GRP_LV
+			, BD_TITLE
+		    , CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(BD_REGI, 'YYYYMMDD') THEN TO_CHAR(BD_REGI, 'HH24:MI')
+		        ELSE TO_CHAR(BD_REGI, 'YYYY.MM.DD')
+		        END AS "BD_REGI"
+		    , CASE WHEN BD_BLCK < 1 THEN 'N'
+            	ELSE 'Y'
+        		END AS "BD_BLCK"
+		FROM BOARD
+		WHERE BD_GRP_SID =
+			(
+			    SELECT MIN(BD_GRP_SID)
+			    FROM BOARD
+			    WHERE BD_GRP_SID > #{bd_grp_sid} AND BD_DELCK = 'N'
+			)
+		AND BD_GRP_LV = 
+			(
+			    SELECT MAX(BD_GRP_LV)
+			    FROM BOARD
+			    WHERE BD_GRP_SID =
+			    (
+			        SELECT MIN(BD_GRP_SID)
+			        FROM BOARD
+			        WHERE BD_GRP_SID > #{bd_grp_sid} AND BD_DELCK = 'N'
+			    )
+			    AND BD_DELCK = 'N'
+			)
+  	]]>
+  	</select>
+  	
+  	
+  	<!-- 아래(이전) 글_1 -->
+  	<select id="selectPreGesi_1" parameterType="java.util.Map" resultType="java.util.Map">
+  	<![CDATA[
+		SELECT BD_SID
+			, BD_GRP_SID
+			, BD_GRP_LV
+			, BD_TITLE
+    		, CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(BD_REGI, 'YYYYMMDD') THEN TO_CHAR(BD_REGI, 'HH24:MI')
+		        ELSE TO_CHAR(BD_REGI, 'YYYY.MM.DD')
+		        END AS "BD_REGI"
+    		, CASE WHEN BD_BLCK < 1 THEN 'N'
+            	ELSE 'Y'
+        		END AS "BD_BLCK"
+		FROM BOARD
+		WHERE BD_GRP_SID = #{bd_grp_sid} AND BD_GRP_LV = (#{bd_grp_LV}+1) AND BD_DELCK = 'N'
+  	]]>
+  	</select>
+  	
+  	<!-- 아래(이전) 글_2 -->
+  	<select id="selectPreGesi_2" parameterType="java.util.Map" resultType="java.util.Map">
+  	<![CDATA[
+  		SELECT BD_SID
+  			, BD_GRP_SID
+  			, BD_GRP_LV
+  			, BD_TITLE
+    		, CASE TO_CHAR(SYSDATE, 'YYYYMMDD') WHEN TO_CHAR(BD_REGI, 'YYYYMMDD') THEN TO_CHAR(BD_REGI, 'HH24:MI')
+		        ELSE TO_CHAR(BD_REGI, 'YYYY.MM.DD')
+		        END AS "BD_REGI"
+    	    , CASE WHEN BD_BLCK < 1 THEN 'N'
+            	ELSE 'Y'
+        		END AS "BD_BLCK"
+		FROM BOARD
+		WHERE BD_GRP_SID =
+			(
+			    SELECT MAX(BD_GRP_SID)
+			    FROM BOARD
+			    WHERE BD_GRP_SID < #{bd_grp_sid} AND BD_DELCK = 'N'
+			)
+		AND BD_GRP_LV = 
+			(
+			    SELECT MIN(BD_GRP_LV)
+			    FROM BOARD
+			    WHERE BD_GRP_SID =
+			    (
+			        SELECT MAX(BD_GRP_SID)
+			        FROM BOARD
+			        WHERE BD_GRP_SID < #{bd_grp_sid} AND BD_DELCK = 'N'
+			    )
+			    AND BD_DELCK = 'N'
+			)
+  	]]>
+  	</select>
+  	
+  	<!-- 게시글 가져오기 타입 설정-->
   	<resultMap id="ContMap" type="java.util.Map">   
         <result property="BD_SID" column="BD_SID" />
         <result property="BD_TITLE" column="BD_TITLE" />
+        <result property="BD_GRP_SID" column="BD_GRP_SID" />
+        <result property="BD_GRP_LV" column="BD_GRP_LV" />
         <result property="MEM_NICK" column="MEM_NICK" />
         <result property="BD_CLI" column="BD_CLI"/>
         <result property="BD_LIKE" column="BD_LIKE"/>
@@ -43,7 +168,10 @@
  	<!-- 게시글 가져오기 -->
 	<select id="selectBDDetail" parameterType="String" resultMap="com.test.prj01.dao.IBoardMapper.ContMap" >
 	<![CDATA[
-		SELECT BD_SID, BD_TITLE
+		SELECT BD_SID
+			, BD_TITLE
+			, BD_GRP_SID
+			, BD_GRP_LV
 		    , (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
 		    , BD_CLI
 		    , BD_LIKE
@@ -54,7 +182,7 @@
 		WHERE BD_SID = #{bdSid }
 	]]>
 	</select>
-  
+	
   	<!-- 게시글에 맞는 댓글 조회 -->
   	<select id="selectBDRepl" parameterType="String" resultType="java.util.Map" >
   	<![CDATA[
@@ -73,7 +201,7 @@
 		    , MEM_SID
 		FROM BD_REPL A
 		WHERE BD_SID = #{bdSid }
-		ORDER BY REPL_LV
+		ORDER BY REPL_GRP, REPL_LV
   	]]>
   	</select>
   	
@@ -105,5 +233,14 @@
   			(#{bdSID }, #{bdSID }, 1, 0, 1, #{bdTitle }, #{bdContent }, SYSDATE, SYSDATE, 0, 'N', 0, 0, 1)
   	]]>
   	</select>
+  	
+  	<!-- 게시글 수정 -->
+  	<update id="updateBoard" parameterType="java.util.Map">
+	  	UPDATE BOARD
+		SET BD_TITLE = #{bdTitle}
+			, BD_CONT = #{bdContent}
+		WHERE BD_SID = #{bdSid}
+  	
+  	</update>
   	
 </mapper>

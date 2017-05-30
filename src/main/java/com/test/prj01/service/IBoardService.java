@@ -11,9 +11,15 @@ public interface IBoardService
 	// 게시판 상세내역 가져오기
 	public Map<String, Object> getbdDetail(String bdSid) throws Exception;
 	
+	// 윗(다음) 글, 아랫(이전) 글 가져오기
+	public Map<String, Object> getPreNextGesi(Map<String, Object> map) throws Exception;
+	
 	// 게시판 댓글 가져오기
 	public List<Map<String, Object>> getbdReply(String bdSid) throws Exception;
 	
 	// 게시글 작성하기
-	public void insertBDCont(Map<String, Object> map);
+	public void insertBDCont(Map<String, Object> map) throws Exception;
+	
+	// 게시글 수정하기
+	public void updateBDCont(Map<String, Object> map) throws Exception;
 }

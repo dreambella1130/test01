@@ -1,5 +1,7 @@
 package com.test.prj01.service;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +24,12 @@ public class BoardService implements IBoardService
 	{
 		dao = session.getMapper(IBoardMapper.class);
 		
-		List<Map<String, Object>> list = dao.selectBoardList();
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		map.put("startN", 1);
+		map.put("endN", 10);
+		
+		List<Map<String, Object>> list = dao.selectBoardList(map);
 		
 		// 들여쓰기 설정 해주기
 		for(int i=0; i<list.size(); i++)
@@ -48,6 +55,53 @@ public class BoardService implements IBoardService
 		Map<String, Object> bdDetail = dao.selectBDDetail(bdSid);
 		
 		return bdDetail;
+	}
+	
+	
+	// 윗(다음) 글, 아랫(이전) 글 가져오기
+	@Override
+	public Map<String, Object> getPreNextGesi(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		Map<String, Object> nextGesi = null;
+		Map<String, Object> preGesi = null;
+		Map<String, Object> preNextGesi = new HashMap<>();
+		
+		// 아래(이전) 글 sql 호출
+		if(Integer.parseInt(map.get("bd_grp_LV").toString()) != 1)
+		{
+			//System.out.println("********** Integer.parseInt(bd_grp_LV) != 1 **********");
+			nextGesi = dao.selectNextGesi_1(map);
+		}
+		else
+		{
+			//System.out.println("********** Integer.parseInt(bd_grp_LV) == 1 **********");
+			nextGesi = dao.selectNextGesi_2(map);
+		}
+		
+		// 윗(다음)글 sql 호출
+		
+		if(dao.selectPreGesi_1(map) != null)
+		{
+			preGesi = dao.selectPreGesi_1(map);
+		}
+		else
+		{
+			preGesi = dao.selectPreGesi_2(map);
+		}
+		
+		
+		if(preGesi == null)
+			System.out.println("******* preGesi == null *******");
+		else
+			System.out.println("******* preGesi :"+preGesi);
+		
+		
+		preNextGesi.put("preGesi", preGesi);
+		preNextGesi.put("nextGesi", nextGesi);
+		
+		return preNextGesi;
 	}
 
 	// 게시판 댓글 가져오기
@@ -89,7 +143,7 @@ public class BoardService implements IBoardService
 
 	// 게시글 작성하기
 	@Override
-	public void insertBDCont(Map<String, Object> map)
+	public void insertBDCont(Map<String, Object> map) throws Exception
 	{
 		dao = session.getMapper(IBoardMapper.class);
 		
@@ -102,6 +156,16 @@ public class BoardService implements IBoardService
 		System.out.println("*****map 출력 :"+map.toString());
 		
 		dao.insertBDCont(map);
+		
+	}
+
+	// 게시글 수정하기
+	@Override
+	public void updateBDCont(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		dao.updateBoard(map);
 		
 	}
 	

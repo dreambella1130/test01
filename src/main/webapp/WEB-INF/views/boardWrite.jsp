@@ -52,14 +52,43 @@
 	    {
 			//id가 bdContent인 textarea에 에디터에서 대입
 			oEditors.getById["bdContent"].exec("UPDATE_CONTENTS_FIELD", []);
-			 
+			
 			// 이부분에 에디터 validation 검증
+			
+			var txt = "";
+			
+			txt = $("#bdTitle").val().trim();
+			
+			if(txt == null || txt == "")
+			{
+				alert("제목을 입력하세요.");
+				$("#bdTitle").focus();
+				
+				return;
+			}
+			
+			txt = $("#bdContent").val();
+			// 유효성 검사를 위해 html 태그 제거 하기
+			txt = removeTag(txt);
+			
+			if(txt == null || txt == "")
+			{
+				alert("내용을 입력하세요.");
+				oEditors.getById["bdContent"].exec("FOCUS"); //포커싱
+				return;
+			}
 			
 			//폼 submit
 			$("#bdInsertForm").attr("action", "/prj01/boardinsert");
 			$("#bdInsertForm").submit();
 		});    
 	});
+	
+	// html 태그 제거하기
+	function removeTag( html )
+	{
+	    return html.replace(/(<([^>]+)>)/gi, "").replace(/&nbsp;/ig, "").trim();
+	}
  
 </script>
 </head>

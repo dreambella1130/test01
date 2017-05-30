@@ -15,6 +15,8 @@
 <body>
 <form method="post" id="submitForm">
 	<input type="hidden" id="bdSid" name="bdSid"/>
+	<input type="hidden" id="bd_grp_sid" name="bd_grp_sid">
+	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV">
 </form>
 <div class="container">
 	<div class="page-header">
@@ -23,7 +25,7 @@
 	
 	<div class="row">
 		<div class="col-md-3">
-			<button type="button" class="btn btn-default" onclick="location.href='/prj01/boardwrite'">
+			<button type="button" class="btn btn-default" onclick="location.href='/prj01/gobdwrite'">
 				<span class="glyphicon glyphicon-pencil"></span> 글쓰기
 			</button>
 		</div>
@@ -43,10 +45,17 @@
 			<tbody>
 				<c:forEach var="list" items="${list }">
 					<tr>
-						<td class="txCenter">${list.NUM }</td>
+						<td class="txCenter">${list.BD_SID }</td>
 						<td>
-							<a href="#" onclick="goSelect(${list.BD_SID }); return false;">${list.BD_TITLE } &nbsp; &nbsp;
-							<span class="badge">${list.REPLCOUNT }</span></a><br>
+							<c:choose>
+								<c:when test="${list.BD_BLCK == 'Y' }">
+									신고된 게시글입니다.
+								</c:when>
+								<c:otherwise>
+									<a href="#" onclick="goSelect(${list.BD_SID }, ${list.BD_GRP_SID },${list.BD_GRP_LV }); return false;">${list.BD_TITLE } &nbsp; &nbsp;
+									<span class="badge">${list.REPLCOUNT }</span></a><br>
+								</c:otherwise>
+							</c:choose>
 						</td>
 						<td class="txCenter">${list.MEM_NICK }</td>
 						<td class="txCenter">${list.BD_REGI }</td>
