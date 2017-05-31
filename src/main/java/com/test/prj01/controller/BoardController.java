@@ -1,8 +1,9 @@
 package com.test.prj01.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.FlashMap;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
@@ -47,9 +49,27 @@ public class BoardController
 	
 	// 게시판 상세내역 가져오기
 	@RequestMapping(value="/bddetail")
-	public String boardDetail(Model model, @RequestParam Map<String, Object> map)
+	public String boardDetail(Model model, @RequestParam Map<String, Object> map, HttpServletRequest request)
 	{
 		logger.info("****게시판 상세목록 호출 :"+map);
+		logger.info("****map.size() :"+map.size());
+		
+		Map<String, ?> map_1 = RequestContextUtils.getInputFlashMap(request);
+		
+		// map의 크기가 0 이면 리다이렉트로 호출 된 것임.
+		// redirect에서 넘어온 파라미터 값 map에 재설정 해주기
+		if(map.size() == 0)
+		{
+			logger.info("***** map == null");
+			logger.info("map_1 출력 :"+map_1);
+			
+			map.put("bdSid", map_1.get("bdSid").toString());
+			map.put("bd_grp_sid", map_1.get("bd_grp_sid").toString());
+			map.put("bd_grp_LV", map_1.get("bd_grp_LV").toString());
+			
+			logger.info("map에 map_1 값 넣은 후 출력 :"+map);
+			
+		}
 		
 		Map<String, Object> bdDetail = null;			// 게시글 상세내용
 		List<Map<String, Object>> bdDetailRepl = null;	// 댓글
@@ -99,7 +119,7 @@ public class BoardController
 	@RequestMapping(value="/boardinsert")
 	public String boardInsert(Model model, @RequestParam Map<String, Object> map)
 	{
-		logger.info(map.toString());
+		logger.info("boardInsert() :"+map.toString());
 		
 		try
 		{
@@ -140,7 +160,7 @@ public class BoardController
 	
 	// 글 수정하기
 	@RequestMapping(value="/boardupdate")
-	public String boardUpdate(Model model, @RequestParam Map<String, Object> map)
+	public String boardUpdate(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
 	{
 		logger.info("게시글 수정(update) 파라미터 출력:"+map);
 		Map<String, Object> bdDetail = null;			// 게시글 상세내용
@@ -155,18 +175,59 @@ public class BoardController
 		}
 		
 		// 리다이렉트 시 파라미터 값 넘겨주기
-		//redirectAttr.addFlashAttribute("map", map);
+		redirectAttr.addFlashAttribute("bdSid", map.get("bdSid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_sid", map.get("bd_grp_sid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_LV", map.get("bd_grp_LV").toString());
 		
-		return "redirect:/boardlist";
+		return "redirect:/bddetail";
 	}
 	
 	// 글 삭제하기
 	@RequestMapping(value="/godelete")
 	public String boardDelete(Model model, @RequestParam Map<String, Object> map)
 	{
+		try
+		{
+			service.deleteBD((String)map.get("bdSid"));
+			
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
 		return "redirect:/boardlist";
 	}
 	
+	// 답글 폼으로 이동하기
+	@RequestMapping(value="/bdrepleform")
+	public String boardReple(Model model, @RequestParam Map<String, Object> map)
+	{
+		// 답글의 경우 답글 여부를 알 수 있는 key를 설정해서 map에 담아준다
+		map.put("repleCheck", "Y");
+		
+		model.addAttribute("bdReple", map);
+		
+		logger.info("***** map 출력 :"+map);
+		
+		return "boardWrite";
+	}
 	
+	// 투표(좋아요, 신고) ajax
+	@RequestMapping(value="/voteboard")
+	public @ResponseBody String boardVote(Model model, @RequestParam Map<String, Object> map)
+	{
+		String ajaxResult = "";
+		
+		if(map.get("like").toString().equals("likeBoard"))
+		{
+			
+		}
+		else if(map.get("like").toString().equals("badBoard"))
+		{
+			
+		}
+		
+		return ajaxResult;
+	}
 	
 }

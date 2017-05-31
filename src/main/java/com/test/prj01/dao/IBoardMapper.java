@@ -32,5 +32,23 @@ public interface IBoardMapper
 	// 게시글 작성하기
 	public void insertBDCont(Map<String, Object> map);
 	
+	// 게시글 답글 작성하기
+	public void insertBDReply(Map<String, Object> map);
+	
+	// 게시글 그룹 순서 수정하기
+	public void updateBDGroupLV(Map<String, Object> map);
+	
+	// 게시글 수정하기
 	public void updateBoard(Map<String, Object> map);
+	
+	// 게시글 삭제 요청 시 삭제 컬럼 'Y'로 바꿔주기
+	public void deleteBoard(String bdSid);
+	
+	// 댓글 삭제 요청 시 삭제 컬럼 'Y'로 바꿔주기
+	public void deleteReple(Map<String, Object> map);
+	
+	// 게시글 추천하기
+	public void voteLikeBoard(String bdSid);
+	
+	
 }

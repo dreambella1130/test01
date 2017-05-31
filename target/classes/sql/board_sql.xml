@@ -35,7 +35,7 @@
   		<where>
   			<if test="startN != null and startN != '' and endN != null and endN != ''">
   			<![CDATA[
-  				NUM BETWEEN #{startN} AND #{endN}
+  				AND NUM BETWEEN #{startN} AND #{endN}
   			]]>
   			</if>
   			<if test="bdSid != null and bdSid !=''">
@@ -157,6 +157,7 @@
         <result property="BD_TITLE" column="BD_TITLE" />
         <result property="BD_GRP_SID" column="BD_GRP_SID" />
         <result property="BD_GRP_LV" column="BD_GRP_LV" />
+        <result property="BD_GRP_DEP" column="BD_GRP_DEP" />
         <result property="MEM_NICK" column="MEM_NICK" />
         <result property="BD_CLI" column="BD_CLI"/>
         <result property="BD_LIKE" column="BD_LIKE"/>
@@ -172,6 +173,7 @@
 			, BD_TITLE
 			, BD_GRP_SID
 			, BD_GRP_LV
+			, BD_GRP_DEP
 		    , (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
 		    , BD_CLI
 		    , BD_LIKE
@@ -200,7 +202,7 @@
 		    , (SELECT MEM_NICK FROM MEM_INFO WHERE MEM_SID = A.MEM_SID) AS "MEM_NICK"
 		    , MEM_SID
 		FROM BD_REPL A
-		WHERE BD_SID = #{bdSid }
+		WHERE BD_SID = #{bdSid } AND REPL_DELCK != 'Y'
 		ORDER BY REPL_GRP, REPL_LV
   	]]>
   	</select>
@@ -213,8 +215,7 @@
   	</select>
   	
   	<!-- 게시글 작성 -->
-  	<select id="insertBDCont" parameterType="java.util.Map">
-  	<![CDATA[
+  	<insert id="insertBDCont" parameterType="java.util.Map">
   		INSERT INTO BOARD
   			( BD_SID
   			, BD_GRP_SID
@@ -229,10 +230,66 @@
   			, BD_DELCK
   			, BD_LIKE
   			, BD_BLCK
-  			, MEM_SID ) VALUES
-  			(#{bdSID }, #{bdSID }, 1, 0, 1, #{bdTitle }, #{bdContent }, SYSDATE, SYSDATE, 0, 'N', 0, 0, 1)
-  	]]>
-  	</select>
+  			, MEM_SID )
+  		VALUES( 
+				#{bdSID }
+				, #{bdSID }
+	  			, 1
+	  			, 0
+	  			, 1
+	  			, #{bdTitle }
+	  			, #{bdContent }
+	  			, SYSDATE
+	  			, SYSDATE
+	  			, 0
+	  			, 'N'
+	  			, 0
+	  			, 0
+	  			, 1 )
+  	</insert>
+  	
+  	<!-- 답글 쓰기 -->
+  	<insert id="insertBDReply" parameterType="java.util.Map">
+  		INSERT INTO BOARD
+  			( BD_SID
+  			, BD_GRP_SID
+  			, BD_GRP_LV
+  			, BD_GRP_DEP
+  			, GUBUN_SID
+  			, BD_TITLE
+  			, BD_CONT
+  			, BD_REGI
+  			, BD_UPDT
+  			, BD_CLI
+  			, BD_DELCK
+  			, BD_LIKE
+  			, BD_BLCK
+  			, MEM_SID )
+		VALUES
+			( #{bdSID}
+			, #{bd_grp_sid}
+			, (#{bd_grp_LV}+1)
+			, (#{bd_grp_dep}+1)
+			, 1
+			, #{bdTitle}
+			, #{bdContent}
+			, SYSDATE
+			, SYSDATE
+			, 0
+			, 'N'
+			, 0
+			, 0
+			, 1 )
+  	</insert>
+  	
+  	<!-- 답글 INSERT 전에 그룹 글번호 순서(BD_GRP_LV) +1 해주기 -->
+  	<update id="updateBDGroupLV" parameterType="java.util.Map">
+	<![CDATA[
+		UPDATE BOARD
+		SET BD_GRP_LV = BD_GRP_LV + 1
+		WHERE BD_GRP_SID = #{bd_grp_sid} AND BD_GRP_LV > #{bd_grp_LV}
+	]]>  	
+  	</update>
   	
   	<!-- 게시글 수정 -->
   	<update id="updateBoard" parameterType="java.util.Map">
@@ -240,7 +297,27 @@
 		SET BD_TITLE = #{bdTitle}
 			, BD_CONT = #{bdContent}
 		WHERE BD_SID = #{bdSid}
+  	</update>
   	
+  	<!-- 게시글 삭제 요청 시 삭제여부 컬럼 'Y'로 변경 하기 -->
+  	<update id="deleteBoard" parameterType="String">
+  		UPDATE BOARD
+		SET BD_DELCK = 'Y'
+		WHERE BD_SID = #{bdSid}
+  	</update>
+  	
+  	<!-- 게시글과 연관된 댓글 삭제여부 컬럼 'Y'로 변경하기 -->
+  	<update id="deleteReple" parameterType="java.util.Map">
+  		UPDATE BD_REPL
+		SET REPL_BLCK = 'N'
+		WHERE BD_SID = #{bdSid}
+  	</update>
+  	
+  	<!-- 게시글 추천하기 -->
+  	<update id="voteLikeBoard" parameterType="String">
+		UPDATE BOARD
+		SET BD_LIKE = BD_LIKE+1
+		WHERE BD_SID = 1
   	</update>
   	
 </mapper>

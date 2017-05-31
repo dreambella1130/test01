@@ -18,6 +18,8 @@
 	<input type="hidden" id="bdSid" name="bdSid" value="${bdDetail.BD_SID }"/>
 	<input type="hidden" id="bd_grp_sid" name="bd_grp_sid" value="${bdDetail.BD_GRP_SID }">
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV" value="${bdDetail.BD_GRP_LV }">
+	<input type="hidden" id="bd_grp_LV" name="bd_grp_dep" value="${bdDetail.BD_GRP_DEP }">
+	<input type="hidden" id="bd_title" name="bd_title" value="${bdDetail.BD_TITLE}">
 </form>
 
 <div class="container">
@@ -30,7 +32,7 @@
 			<button type="button" class="btn btn-default" onclick="location.href='/prj01/gobdwrite'">
 				<span class="glyphicon glyphicon-pencil"></span> 글쓰기
 			</button>
-			<button type="button" class="btn btn-default">답글</button>
+			<button type="button" class="btn btn-default" onclick="goBoardReple();">답글</button>
 			
 			<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">글삭제</button>
@@ -81,7 +83,8 @@
 	
 	<div class="UDmargin">
 		<div class="nickMargin">
-			${bdDetail.MEM_NICK} | 조회 ${bdDetail.BD_CLI} | 추천 ${bdDetail.BD_LIKE} | ${bdDetail.BD_REGI}
+			${bdDetail.MEM_NICK} | 조회 ${bdDetail.BD_CLI} |
+			추천 <span class="countLike">${bdDetail.BD_LIKE}</span> | ${bdDetail.BD_REGI}
 		</div>
 		<p>
 		<div>${bdDetail.BD_CONT}</div>
@@ -92,8 +95,8 @@
 			<div class="col-xs-8">
 			</div>
 			<div class="flotR">
-				<a href="#" class="btn btn-info btn-default">
-		        	<span class="glyphicon glyphicon-thumbs-up"></span> Like &nbsp; <span class="badge">${bdDetail.BD_LIKE}</span>
+				<a href="#" class="btn btn-info btn-default" id="voteLike">
+		        	<span class="glyphicon glyphicon-thumbs-up"></span> Like &nbsp; <span class="badge countLike">${bdDetail.BD_LIKE}</span>
 		        </a>
 		        <button type="button" class="btn btn-link">신고</button>
 			</div>
@@ -137,7 +140,7 @@
 			<button type="button" class="btn btn-default" onclick="location.href='/prj01/boardwrite'">
 				<span class="glyphicon glyphicon-pencil"></span> 글쓰기
 			</button>
-			<button type="button" class="btn btn-default">답글</button>
+			<button type="button" class="btn btn-default" onclick="goBoardReple();">답글</button>
 			
 			<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">글삭제</button>

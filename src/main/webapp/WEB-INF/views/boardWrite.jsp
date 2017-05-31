@@ -20,6 +20,15 @@
 	
 	$(function()
 	{
+		var temp = "";
+		
+		temp = "${bdReple.bd_title }";
+		
+		if(temp != null && temp != "")
+		{
+			$("#bdTitle").val("RE: "+temp);
+		}
+		
 		nhn.husky.EZCreator.createInIFrame(
 		{
 			oAppRef: oEditors,
@@ -45,6 +54,8 @@
 			    //oEditors.getById["bdContent"].exec("PASTE_HTML", ["기존 DB에 저장된 내용을 에디터에 적용할 문구"]);
 			},
 			fCreator: "createSEditor2"
+			
+			
 		});
 	      
 		//확인버튼 클릭시 form 전송
@@ -99,8 +110,13 @@
 	</div>
 	<br /><br />
 	<form class="form-group" id="bdInsertForm" method="post">
+		<input type="hidden" name="bd_grp_sid" value="${bdReple.bd_grp_sid }"/>
+		<input type="hidden" name="bd_grp_LV" value="${bdReple.bd_grp_LV }"/>
+		<input type="hidden" name="bd_grp_dep" value="${bdReple.bd_grp_dep }"/>
+		<input type="hidden" name="repleCheck" value="${bdReple.repleCheck }"/>
+	
 		<div class="inputMargin">
-			<input class="form-control" type="text" id="bdTitle" name="bdTitle" placeholder="제목을 입력해 주세요">
+			<input class="form-control" type="text" id="bdTitle" name="bdTitle" placeholder="제목을 입력해 주세요" >
 		</div>
 		<div class="inputMargin">
 			<textarea class="form-control" rows="20" id="bdContent" name="bdContent" style='width:100%; min-width:260px; height:30em; display:none;'></textarea>

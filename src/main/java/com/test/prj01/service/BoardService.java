@@ -1,11 +1,12 @@
 package com.test.prj01.service;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.session.SqlSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,6 +15,8 @@ import com.test.prj01.dao.IBoardMapper;
 @Service
 public class BoardService implements IBoardService
 {
+	private static final Logger logger = LoggerFactory.getLogger(BoardService.class);
+	
 	@Autowired
 	private SqlSession session;
 	private IBoardMapper dao;
@@ -26,8 +29,8 @@ public class BoardService implements IBoardService
 		
 		Map<String, Object> map = new HashMap<String, Object>();
 		
-		map.put("startN", 1);
-		map.put("endN", 10);
+		//map.put("startN", 1);
+		//map.put("endN", 10);
 		
 		List<Map<String, Object>> list = dao.selectBoardList(map);
 		
@@ -155,7 +158,20 @@ public class BoardService implements IBoardService
 		
 		System.out.println("*****map 출력 :"+map.toString());
 		
-		dao.insertBDCont(map);
+		if(map.get("repleCheck").toString().equals("Y"))
+		{
+			// 답글 insert 전 글 그룹 순서 수정하기
+			dao.updateBDGroupLV(map);
+			
+			// 답글 insert 하기
+			dao.insertBDReply(map);
+		}
+		else
+		{
+			// 신규 글 작성
+			dao.insertBDCont(map);
+		}
+		
 		
 	}
 
@@ -167,6 +183,21 @@ public class BoardService implements IBoardService
 		
 		dao.updateBoard(map);
 		
+	}
+
+	// 게시글 삭제 하기(게시글, 댓글 삭제여부만 'Y'로 update 하기
+	@Override
+	public void deleteBD(String bdSid) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("bdSid", bdSid);
+		
+		// 게시글 삭제(삭제여부 컬럼 update) 하기
+		dao.deleteBoard(bdSid);
+		
+		// 게시글에 연관된 댓글 삭제(삭제여부 컬럼 update) 하기
+		dao.deleteReple(map);
 	}
 	
 	

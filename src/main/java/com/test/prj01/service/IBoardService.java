@@ -22,4 +22,9 @@ public interface IBoardService
 	
 	// 게시글 수정하기
 	public void updateBDCont(Map<String, Object> map) throws Exception;
+	
+	// 게시글 삭제 하기
+	public void deleteBD(String bdSid) throws Exception;
+	
+	// 게시글 추천 하기
 }
