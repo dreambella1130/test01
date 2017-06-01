@@ -27,4 +27,11 @@ public interface IBoardService
 	public void deleteBD(String bdSid) throws Exception;
 	
 	// 게시글 추천 하기
+	public String voteBDLike(Map<String, Object> map) throws Exception;
+	
+	// 게시글 신고 하기
+	public String voteBDBL(Map<String, Object> map) throws Exception;
+	
+	// 댓글 작성하기
+	public void insertGesiRepl(Map<String, Object> map) throws Exception;
 }

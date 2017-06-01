@@ -6,9 +6,36 @@
 	<appender name="console" class="org.apache.log4j.ConsoleAppender">
 		<param name="Target" value="System.out" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="%-5p: %c - %m%n" />
+			<param name="ConversionPattern" value="%d %5p [%c] %m%n" />
 		</layout>
 	</appender>
+	
+	<!-- @추가_1 : SQL 쿼리문 log 찍기  -->
+	<appender name="console-infolog" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %5p %m%n" />
+        </layout>   
+    </appender>
+    
+    <!-- @추가_2 : SQL 쿼리문 log 찍기 -->
+    <logger name="first" additivity="false">
+        <level value="debug" />
+        <appender-ref ref="console"/>
+    </logger>
+     
+    <!-- @추가_3 : SQL 쿼리문 log 찍기 -->
+    <!-- Query Loggers -->
+    <logger name="jdbc.sqlonly" additivity="false">  
+        <level value="INFO"/>  
+        <appender-ref ref="console-infolog"/>  
+    </logger>
+    
+     <!-- @추가_4 : SQL 쿼리문 log 찍기 -->
+    <logger name="jdbc.resultsettable" additivity="false">  
+        <level value="INFO"/>  
+        <appender-ref ref="console"/>  
+    </logger>
+	
 	
 	<!-- Application Loggers -->
 	<logger name="com.test.prj01">
@@ -32,10 +59,12 @@
 		<level value="info" />
 	</logger>
 
+	<!-- @변경 : value="off"로 변경 -->
 	<!-- Root Logger -->
 	<root>
-		<priority value="warn" />
+		<priority value="off" />
 		<appender-ref ref="console" />
 	</root>
+
 	
 </log4j:configuration>

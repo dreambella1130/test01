@@ -1,5 +1,6 @@
 package com.test.prj01.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -214,20 +215,72 @@ public class BoardController
 	
 	// 투표(좋아요, 신고) ajax
 	@RequestMapping(value="/voteboard")
-	public @ResponseBody String boardVote(Model model, @RequestParam Map<String, Object> map)
+	@ResponseBody
+	public Map<String, Object> boardVote(Model model, @RequestParam Map<String, Object> map)
 	{
-		String ajaxResult = "";
+		logger.info("**** boardVote() ajax 파라미터 출력 :"+map);
 		
-		if(map.get("like").toString().equals("likeBoard"))
+		Map<String, Object> ajaxResult = new HashMap<String, Object>();
+		String msg = "";
+		
+		try
 		{
+			if(map.get("voteType").toString().equals("likeBoard"))
+			{
+				// 추천 구분번호 셋팅
+				map.put("gubun_sid", 2);
+				msg = service.voteBDLike(map);
+			}
+			else if(map.get("voteType").toString().equals("badBoard"))
+			{
+				// 신고 구분번호 셋팅
+				map.put("gubun_sid", 3);
+				msg = service.voteBDBL(map);
+			}
 			
-		}
-		else if(map.get("like").toString().equals("badBoard"))
+		} catch (Exception e)
 		{
-			
+			e.printStackTrace();
 		}
+		
+		ajaxResult.put("result", msg);
 		
 		return ajaxResult;
+	}
+	
+	@RequestMapping(value="/goinsertgesirepl")
+	public String gesiReplInsert(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
+	{
+		logger.info("**** gesiReplInsert 파라미터 출력 :"+map);
+		
+		try
+		{
+			// 답글의 답글이라면...
+			if(map.get("bd_gesi_repl_Chk").toString().equals("Y"))
+			{
+				
+			}
+			else
+			{
+				// 답글 신규 작성이라면
+				service.insertGesiRepl(map);
+				
+			}
+			
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		
+		
+		// 리다이렉트 시 파라미터 값 넘겨주기
+		redirectAttr.addFlashAttribute("bdSid", map.get("bdSid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_sid", map.get("bd_grp_sid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_LV", map.get("bd_grp_LV").toString());
+		
+		return "redirect:/bddetail";
+		
 	}
 	
 }

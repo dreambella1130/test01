@@ -313,11 +313,79 @@
 		WHERE BD_SID = #{bdSid}
   	</update>
   	
+  	<!-- 게시글 추천/신고 중복 확인하기 -->
+  	<select id="selectOverlapChk" resultType="String" parameterType="java.util.Map">
+	  	SELECT COUNT(*) AS "COUNT"
+		FROM BOARD_VOTE
+		WHERE BD_SID = #{bdSid}
+		AND GUBUN_SID = #{gubun_sid}
+		AND (BD_VOTE_IP = #{clientIP} <if test="memSid != null">OR MEM_SID = #{memSid}</if>)
+  	</select>
+  	
+  	<!-- 게시글 추천/신고 이력 테이블 insert-->
+  	<insert id="insertBDVote" parameterType="java.util.Map">
+  		INSERT INTO BOARD_VOTE
+  			( BD_VOTE_SID
+  			, BD_VOTE_IP
+  			<if test="memSid != null">, MEM_SID</if>
+  			, BD_VOTE_REGI
+  			, BD_SID
+  			, GUBUN_SID)
+		VALUES
+			( SEQ_BOARD_VOTE.NEXTVAL
+			, #{clientIP}<if test="memSid != null">, #{memSid}</if>, SYSDATE, #{bdSid}, #{gubun_sid})
+  	</insert>
+  	
   	<!-- 게시글 추천하기 -->
-  	<update id="voteLikeBoard" parameterType="String">
+  	<update id="updateBDLike" parameterType="String">
 		UPDATE BOARD
 		SET BD_LIKE = BD_LIKE+1
-		WHERE BD_SID = 1
+		WHERE BD_SID = #{bdSid}
   	</update>
+  	
+  	<!-- 게시물의 추천 수 가져오기 -->
+  	<select id="selectGetLike" parameterType="String" resultType="String">
+  		SELECT BD_LIKE
+		FROM BOARD
+		WHERE BD_SID = #{bdSid}
+  	</select>
+  	
+  	<!-- 게시글 신고 수 +1 하기 -->
+  	<update id="updateBDBL" parameterType="String" >
+  		UPDATE BOARD
+		SET BD_BLCK = BD_BLCK+1
+		WHERE BD_SID = #{bdSid}
+  	</update>
+  	
+  	<select id="selectGesiReplSID" resultType="String">
+  		SELECT SEQ_BD_REPL.NEXTVAL FROM DUAL
+  	</select>
+  	
+  	<insert id="insertGesiRepl" parameterType="java.util.Map">
+  		INSERT INTO BD_REPL
+  			( REPL_SID
+  			, REPL_GRP
+  			, REPL_LV
+  			, REPL_DEPT
+  			, REPL_CONT
+  			, REPL_REGI
+  			, REPL_UPDT
+  			, REPL_DELCK
+  			, REPL_BLCK
+  			, BD_SID
+  			, MEM_SID )
+		VALUES
+			( #{gesiRepSid}
+			, #{gesiRepSid}
+			, 1
+			, 0
+			, #{bd_gesi_repl}
+			, SYSDATE
+			, SYSDATE
+			, 'N'
+			, 0
+			, #{bdSid}
+			, 1 )
+  	</insert>
   	
 </mapper>

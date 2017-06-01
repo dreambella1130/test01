@@ -47,8 +47,25 @@ public interface IBoardMapper
 	// 댓글 삭제 요청 시 삭제 컬럼 'Y'로 바꿔주기
 	public void deleteReple(Map<String, Object> map);
 	
-	// 게시글 추천하기
-	public void voteLikeBoard(String bdSid);
+	// 게시글 추천/신고 중복 확인하기
+	public String selectOverlapChk(Map<String, Object> map);
 	
+	// 게시글 추천/신고 이력 테이블 insert
+	public void insertBDVote(Map<String, Object> map);
+	
+	// 게시글 추천하기
+	public void updateBDLike(String bdSid);
+	
+	// 게시글 추천 수 가져오기
+	public String selectGetLike(String bdSid);
+	
+	// 게시글 신고하기
+	public void updateBDBL(String bdSid);
+	
+	// 댓글 번호 생성하기
+	public String selectGesiReplSID();
+	
+	// 댓글 등록하기
+	public void insertGesiRepl(Map<String, Object> map);
 	
 }

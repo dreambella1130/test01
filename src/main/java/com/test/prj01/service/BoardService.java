@@ -199,6 +199,83 @@ public class BoardService implements IBoardService
 		// 게시글에 연관된 댓글 삭제(삭제여부 컬럼 update) 하기
 		dao.deleteReple(map);
 	}
+
+	// 게시글 추천 하기
+	@Override
+	public String voteBDLike(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 서비스 호출(voteBDLike) map 출력:"+map);
+		
+		// ip / 회원번호 기준으로 투표 중복 여부 확인하기
+		String msg = dao.selectOverlapChk(map);
+		
+		// 중복 투표라면
+		if(msg.equals("1"))
+		{
+			msg = "Y";
+			
+			return msg;
+		}
+		else
+		{
+			// 투표 이력T insert
+			dao.insertBDVote(map);
+			// 추천 숫자 올리기
+			dao.updateBDLike(map.get("bdSid").toString());
+			
+			msg = dao.selectGetLike(map.get("bdSid").toString());
+		}
+		
+		return msg;
+	}
+
+	// 게시글 신고 하기
+	@Override
+	public String voteBDBL(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 서비스 호출(voteBDBL) map 출력:"+map);
+		
+		// ip / 회원번호 기준으로 투표 중복 여부 확인하기
+		String msg = dao.selectOverlapChk(map);
+		
+		// 중복 투표라면
+		if(msg.equals("1"))
+		{
+			msg = "Y";
+			
+			return msg;
+		}
+		else
+		{
+			// 투표 이력T insert
+			dao.insertBDVote(map);
+			// 신고 숫자 올리기
+			dao.updateBDBL(map.get("bdSid").toString());
+		}
+		
+		return msg;
+	}
+
+	// 댓글 작성하기
+	@Override
+	public void insertGesiRepl(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 서비스 호출(insertGesiRepl) map 출력:"+map);
+		
+		// 댓글 번호 가져오기
+		String gesiRepSid = dao.selectGesiReplSID();
+		
+		map.put("gesiRepSid", gesiRepSid);
+		
+		// 댓글 insert 하기
+		dao.insertGesiRepl(map);
+	}
 	
 	
 	

@@ -20,6 +20,8 @@
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV" value="${bdDetail.BD_GRP_LV }">
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_dep" value="${bdDetail.BD_GRP_DEP }">
 	<input type="hidden" id="bd_title" name="bd_title" value="${bdDetail.BD_TITLE}">
+	<input type="hidden" id="bd_gesi_repl" name="bd_gesi_repl"/>
+	<input type="hidden" id="bd_gesi_repl_Chk" name="bd_gesi_repl_Chk" value="N"/>
 </form>
 
 <div class="container">
@@ -27,6 +29,7 @@
 		<h1>게시판 상세내용</h1>
 	</div>
 	
+	<!-- head 글쓰기, 답글 등 버튼 위치 -->
 	<div class="row">
 		<div class="col-xs-5">
 			<button type="button" class="btn btn-default" onclick="location.href='/prj01/gobdwrite'">
@@ -71,7 +74,7 @@
 	</div>
 	<p>
 	
-	<!-- 제목 -->
+	<!-- 제목 -------------------------------------------------------------------------------------------------->
 	
 	<div class="well">
 		<div class="row txtTitle">
@@ -79,7 +82,7 @@
 		</div>
 	</div>
 	
-	<!-- 본문 메인 내용 -->
+	<!-- 본문 메인 내용 ---------------------------------------------------------------------------------------->
 	
 	<div class="UDmargin">
 		<div class="nickMargin">
@@ -95,16 +98,16 @@
 			<div class="col-xs-8">
 			</div>
 			<div class="flotR">
-				<a href="#" class="btn btn-info btn-default" id="voteLike">
+				<a href="#" class="btn btn-info btn-default goVote" id="likeBoard">
 		        	<span class="glyphicon glyphicon-thumbs-up"></span> Like &nbsp; <span class="badge countLike">${bdDetail.BD_LIKE}</span>
 		        </a>
-		        <button type="button" class="btn btn-link">신고</button>
+		        <button type="button" class="btn btn-link goVote" id="badBoard">신고</button>
 			</div>
 		</div>
 		<p>
 	</div>
 	
-	<!-- 댓글 시작 -->
+	<!-- 댓글 시작 ----------------------------------------------------------------------------------->
 	
 	<div class="well">
 	<c:forEach var="replList" items="${bdDetailRepl }" varStatus="status">
@@ -115,26 +118,30 @@
 		<dl>
 			<dt class="replMargin">
 				${replList.MEM_NICK } <span class="replTime">${replList.REPL_REGI }</span>
-				<span class="flotR"><a href="#"> 답글 </a> | <a href="#"> 신고</a></span>
+				<span class="flotR"><a href="#">수정</a> | <a href="#"> 삭제</a> | <a href="#"> 답글 </a> </span>
 			</dt>
 			<dd class="replMargin">${replList.REPL_CONT }</dd>
 		</dl>
 	</c:forEach>
-		
-	<form class="form-horizontal" id="replyForm">
-		<input type="hidden" name="">
+	
+	
+	<!-- 댓글 입력 textarea  ---------------------------------------------------------------------------->
+	
+	<div class="form-horizontal">
 		<div class="form-group">
 			<div class="col-sm-11">
-				<textarea rows="3" class="form-control" id="" name="" placeholder="댓글을 입력해주세요"></textarea>
+				<textarea rows="3" class="form-control" id="replCont" placeholder="댓글을 입력해주세요"></textarea>
 			</div>
-			<div class="col-sm-1">
+			<div class="col-sm-1" id="gesiReplBtn">
 				<p class="replBtn">등록</p>
 			</div>
 		</div>
-	</form>
+	</div>
 		
 	</div>
 	<p>
+	
+	<!-- footer 글쓰기 등 버튼  ---------------------------------------------------------------------------->
 	<div class="row">
 		<div class="col-xs-5">
 			<button type="button" class="btn btn-default" onclick="location.href='/prj01/boardwrite'">
@@ -178,6 +185,9 @@
 		</div>
 	</div>
 	<br>
+	
+	<!-- 윗글, 아랫글 제목 노출 ---------------------------------------------------------------------------------->
+	
 	<div class="row">
 		<div class="col-xs-3">
 		<c:choose>
@@ -262,7 +272,7 @@
 	</div>
 	<br>
 	
-<!-- 글 삭제 Modal -->
+<!-- 글 삭제 Modal --------------------------------------------------------------------------------------------->
 <div class="modal fade" id="myModal" role="dialog">
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
