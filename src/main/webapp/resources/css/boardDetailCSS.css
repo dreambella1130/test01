@@ -79,3 +79,6 @@
 	color: #d82746;
 	text-decoration: underline;
 }
+
+.countColor { font-weight: bold; color: #d82746; text-align: right; };
+

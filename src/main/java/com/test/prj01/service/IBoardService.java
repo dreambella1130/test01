@@ -34,4 +34,10 @@ public interface IBoardService
 	
 	// 댓글 작성하기
 	public void insertGesiRepl(Map<String, Object> map) throws Exception;
+	
+	// 댓글 수정하기
+	public void updateGesiRepl(Map<String, Object> map) throws Exception;
+	
+	// 댓글 삭제하기
+	public void deleteGesiRepl(String bd_gesi_repl_sid) throws Exception;
 }

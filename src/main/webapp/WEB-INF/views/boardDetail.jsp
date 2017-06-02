@@ -1,5 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<% pageContext.setAttribute("enter","\n"); %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,21 +9,25 @@
 <title>게시판 상세내용</title>
 <!-- Jquery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<link rel="stylesheet" href="<c:url value='resources/css/boardDetailCSS.css'/>">
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="<c:url value='resources/js/boardjs.js'/>"></script>
-<link rel="stylesheet" href="<c:url value='resources/css/boardDetailCSS.css'/>">
+
 </head>
 <body>
 <form method="post" id="submitForm">
 	<input type="hidden" id="bdSid" name="bdSid" value="${bdDetail.BD_SID }"/>
 	<input type="hidden" id="bd_grp_sid" name="bd_grp_sid" value="${bdDetail.BD_GRP_SID }">
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV" value="${bdDetail.BD_GRP_LV }">
-	<input type="hidden" id="bd_grp_LV" name="bd_grp_dep" value="${bdDetail.BD_GRP_DEP }">
+	<input type="hidden" id="bd_grp_dep" name="bd_grp_dep" value="${bdDetail.BD_GRP_DEP }">
 	<input type="hidden" id="bd_title" name="bd_title" value="${bdDetail.BD_TITLE}">
-	<input type="hidden" id="bd_gesi_repl" name="bd_gesi_repl"/>
-	<input type="hidden" id="bd_gesi_repl_Chk" name="bd_gesi_repl_Chk" value="N"/>
+	<input type="hidden" id="bd_gesi_repl_sid" name="bd_gesi_repl_sid"/>
+	<input type="hidden" id="bd_gesi_repl_grp" name="bd_gesi_repl_grp"/>
+	<input type="hidden" id="bd_gesi_repl_dep" name="bd_gesi_repl_dep"/>
+	<input type="hidden" id="bd_gesi_repl_cont" name="bd_gesi_repl_cont"/>
+	<input type="hidden" id="bd_gesi_repl_Chk" name="bd_gesi_repl_Chk"/>
 </form>
 
 <div class="container">
@@ -38,7 +44,7 @@
 			<button type="button" class="btn btn-default" onclick="goBoardReple();">답글</button>
 			
 			<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
-			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">글삭제</button>
+			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">삭제</button>
 			
 		</div>
 		<div class="col-xs-4"></div>
@@ -98,7 +104,7 @@
 			<div class="col-xs-8">
 			</div>
 			<div class="flotR">
-				<a href="#" class="btn btn-info btn-default goVote" id="likeBoard">
+				<a href="javascript:void(0);" class="btn btn-info btn-default goVote" id="likeBoard">
 		        	<span class="glyphicon glyphicon-thumbs-up"></span> Like &nbsp; <span class="badge countLike">${bdDetail.BD_LIKE}</span>
 		        </a>
 		        <button type="button" class="btn btn-link goVote" id="badBoard">신고</button>
@@ -114,13 +120,35 @@
 		<c:if test="${status.index != 0 && replList.REPL_DEPT == 0}">
 			<hr class="replGubun">
 		</c:if>
-		
 		<dl>
 			<dt class="replMargin">
 				${replList.MEM_NICK } <span class="replTime">${replList.REPL_REGI }</span>
-				<span class="flotR"><a href="#">수정</a> | <a href="#"> 삭제</a> | <a href="#"> 답글 </a> </span>
+				<span class="flotR">
+					<a href="javascript:void(0);">답글</a> | 
+					<a href="javascript:void(0);" onclick="repleEdit(${replList.REPL_SID });"> 수정</a> | 
+					<a href="javascript:void(0);" onclick="repleDelete(${replList.REPL_SID })"> 삭제 </a> 
+				</span>
 			</dt>
-			<dd class="replMargin">${replList.REPL_CONT }</dd>
+			<dd class="replMargin showRepl" id="origin_${replList.REPL_SID }">${replList.REPL_CONT }</dd>
+			
+	<!-- 댓글 수정 폼 ----------------------------------------------------------------------------------->
+	
+			<dd class="replMargin hiddenRepl" style="display: none;" id="edit_${replList.REPL_SID }">
+				<div class="form-group row">
+					<div class="col-sm-11">
+						<textarea rows="3" class="form-control replTxtLength" id="editTxt_${replList.REPL_SID }">${fn:replace(replList.REPL_CONT, '<br>', enter)}</textarea>
+					</div>
+					<div class="col-sm-1 gesiReplBtn">
+						<p class="replBtn">등록</p>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10"></div>
+					<div class="col-sm-2">
+						<span class="countColor editTxt_${replList.REPL_SID }_chk">${fn:length(replList.REPL_CONT) }</span> / 150자
+					</div>
+				</div>
+			</dd> <!-- end 댓글 수정 -->
 		</dl>
 	</c:forEach>
 	
@@ -128,13 +156,18 @@
 	<!-- 댓글 입력 textarea  ---------------------------------------------------------------------------->
 	
 	<div class="form-horizontal">
-		<div class="form-group">
+		<div class="form-group row">
 			<div class="col-sm-11">
-				<textarea rows="3" class="form-control" id="replCont" placeholder="댓글을 입력해주세요"></textarea>
+				<textarea rows="3" class="form-control replTxtLength" id="newReplCon" placeholder="댓글을 입력해주세요"></textarea>
 			</div>
-			<div class="col-sm-1" id="gesiReplBtn">
+			<div class="col-sm-1 gesiReplBtn">
 				<p class="replBtn">등록</p>
 			</div>
+		</div>
+		
+		<div class="row">
+			<div class="col-sm-10"></div>
+			<div class="col-sm-2"><span class="newReplCon_chk countColor">0</span> / 150자</div>
 		</div>
 	</div>
 		
@@ -150,7 +183,7 @@
 			<button type="button" class="btn btn-default" onclick="goBoardReple();">답글</button>
 			
 			<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
-			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">글삭제</button>
+			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">삭제</button>
 			
 		</div>
 		<div class="col-xs-4"></div>
@@ -285,6 +318,25 @@
       </div>
       <div class="modal-footer">
       	<button type="button" class="btn btn-primary" onclick="goBDDelete();">확인</button>
+        <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 댓글 삭제 Modal --------------------------------------------------------------------------------------------->
+<div class="modal fade" id="replModal" role="dialog">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">정말로 삭제하시겠습니까?</h4>
+      </div>
+      <div class="modal-body">
+        <p>삭제 시 복구가 되지 않습니다.</p>
+      </div>
+      <div class="modal-footer">
+      	<button type="button" class="btn btn-primary" onclick="goDeleteRepl();">확인</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
       </div>
     </div>

@@ -65,26 +65,72 @@ $(document).ready(function()
 		
 	});	//-- end $(".goVote").click()
 	
-	// 댓글 입력 버튼 눌렀을 때	- 호출 : boardDetail.jsp
-	$("#gesiReplBtn").click(function()
+	// 댓글 입력 시 글자 수 체크하여 표시하기 - 호출 : boardDetail.jsp
+	$(".replTxtLength").bind("change keyup input", function()
 	{
-		//alert("댓글 입력 클릭 이벤트 호출");
-		txtChk = $("#replCont").val().trim();
+		var text = $(this).attr("id");
+		//alert("***********"+$("#"+text).val()+"***********");
+		
+		if($("#"+text).val().length <= 150)
+		{
+			$("."+text+"_chk").html($("#"+text).val().length);
+		}
+		else
+		{
+			alert("최대 150자이므로 초과된 글자수는 자동으로 삭제됩니다.")
+			$("#"+text).val($("#"+text).val().substring(0, 150));
+			$("#"+text).focus();
+		}
+		
+		
+	});
+	
+	// 댓글 입력 버튼 눌렀을 때	- 호출 : boardDetail.jsp
+	$(".gesiReplBtn").click(function()
+	{
+		//alert("댓글 등록 이벤트 호출");
+		alert("*****"+$(this).siblings().find('textarea').attr("id")+"*****");
+		
+		var newOldChk = $(this).siblings().find('textarea').attr("id");
+		
+		
+		txtChk = $("#"+newOldChk).val().trim();
 		
 		if(txtChk == null || txtChk == "")
 		{
 			alert("내용을 입력해 주세요.");
-			$("#replCont").val(txtChk);
-			$("#replCont").focus();
+			
+			// textarea 공백 없애주기
+			$("#"+newOldChk).val(txtChk);
+			$("#"+newOldChk).focus();
+			
+			// 입력한 글자 수 0으로 만들어주기
+			$("."+newOldChk+"_chk").html($("#"+newOldChk).val().length);
 			
 			return;
 		}
 		
-		$("#bd_gesi_repl").val(txtChk);
-		$("#submitForm").attr("action", "/prj01/goinsertgesirepl");
+		if(newOldChk == 'newReplCon')
+		{
+			//alert("댓글 신규등록 :"+txtChk+"*******");
+			$("#bd_gesi_repl_Chk").val("NewRepl");
+			$("#submitForm").attr("action", "/prj01/goinsertgesirepl");
+		}
+		else
+		{
+			//alert("댓글 수정 번호:"+newOldChk.substring(newOldChk.indexOf('_')+1)+"*******");
+			
+			// 댓글 수정 체크를 위해 값 넣어주기
+			$("#bd_gesi_repl_Chk").val("updateRepl");
+			$("#bd_gesi_repl_sid").val(newOldChk.substring(newOldChk.indexOf('_')+1));
+			$("#submitForm").attr("action", "/prj01/goupdategesirepl");
+		}
+		
+		$("#bd_gesi_repl_cont").val(txtChk);
 		$("#submitForm").submit();
 		
-	});
+	}); // end $(".gesiReplBtn").click()
+	
 	
 });
 
@@ -128,3 +174,30 @@ function goBoardReple()
 	$("#submitForm").submit();
 }
 
+// 댓글 수정 폼 보여주기
+function repleEdit(replSid)
+{
+	// 기본 셋팅
+	$(".hiddenRepl").hide();
+	$(".showRepl").show();
+	
+	// 요청온 수정 댓글 폼 보여주기
+	$("#origin_"+replSid).hide();
+	$("#edit_"+replSid).show();
+	
+}
+
+// 댓글 삭제 요청 시 모달 팝업 띄워서 삭제여부 재확인하기
+function repleDelete(replSid)
+{
+	 $("#replModal").modal();
+	 // 삭제 예정 댓글 번호 저장
+	 $("#bd_gesi_repl_sid").val(replSid);
+}
+
+// 댓글 삭제 폼 전송
+function goDeleteRepl()
+{
+	$("#submitForm").attr("action","/prj01/godeletereple");
+	$("#submitForm").submit();
+}

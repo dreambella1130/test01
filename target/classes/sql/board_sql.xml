@@ -207,7 +207,7 @@
   	]]>
   	</select>
   	
-  	<!-- 게시글 번호 조회 -->
+  	<!-- 게시글 번호(PK) 조회 -->
   	<select id="selectBDSID" resultType="String">
   	<![CDATA[
   		SELECT SEQ_BOARD.NEXTVAL FROM DUAL
@@ -357,10 +357,12 @@
 		WHERE BD_SID = #{bdSid}
   	</update>
   	
+  	<!-- 댓글 키(PK) 생성하기 -->
   	<select id="selectGesiReplSID" resultType="String">
   		SELECT SEQ_BD_REPL.NEXTVAL FROM DUAL
   	</select>
   	
+  	<!-- 댓글 등록하기 -->
   	<insert id="insertGesiRepl" parameterType="java.util.Map">
   		INSERT INTO BD_REPL
   			( REPL_SID
@@ -375,11 +377,11 @@
   			, BD_SID
   			, MEM_SID )
 		VALUES
-			( #{gesiRepSid}
-			, #{gesiRepSid}
+			( #{bd_gesi_repl_sid}
+			, #{bd_gesi_repl_sid}
 			, 1
 			, 0
-			, #{bd_gesi_repl}
+			, #{bd_gesi_repl_cont}
 			, SYSDATE
 			, SYSDATE
 			, 'N'
@@ -387,5 +389,16 @@
 			, #{bdSid}
 			, 1 )
   	</insert>
+  	
+  	<update id="updateGesiRepl" parameterType="java.util.Map">
+  		UPDATE BD_REPL
+		SET REPL_CONT = #{bd_gesi_repl_cont}
+		WHERE REPL_SID = #{bd_gesi_repl_sid}
+  	</update>
+  	
+  	<delete id="deleteGesiRepl" parameterType="String">
+  		DELETE BD_REPL
+		WHERE REPL_SID = #{bd_gesi_repl_sid}
+  	</delete>
   	
 </mapper>

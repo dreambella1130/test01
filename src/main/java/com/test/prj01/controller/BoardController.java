@@ -164,6 +164,7 @@ public class BoardController
 	public String boardUpdate(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
 	{
 		logger.info("게시글 수정(update) 파라미터 출력:"+map);
+		
 		Map<String, Object> bdDetail = null;			// 게시글 상세내용
 		
 		try
@@ -218,7 +219,7 @@ public class BoardController
 	@ResponseBody
 	public Map<String, Object> boardVote(Model model, @RequestParam Map<String, Object> map)
 	{
-		logger.info("**** boardVote() ajax 파라미터 출력 :"+map);
+		logger.info("**** 투표 boardVote() ajax 파라미터 출력 :"+map);
 		
 		Map<String, Object> ajaxResult = new HashMap<String, Object>();
 		String msg = "";
@@ -248,23 +249,23 @@ public class BoardController
 		return ajaxResult;
 	}
 	
+	// 댓글 등록
 	@RequestMapping(value="/goinsertgesirepl")
 	public String gesiReplInsert(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
 	{
-		logger.info("**** gesiReplInsert 파라미터 출력 :"+map);
+		logger.info("**** 댓글 신규 gesiReplInsert() 파라미터 출력 :"+map);
 		
 		try
 		{
-			// 답글의 답글이라면...
-			if(map.get("bd_gesi_repl_Chk").toString().equals("Y"))
+			
+			if(map.get("bd_gesi_repl_Chk").toString().equals("NewRepl"))
 			{
-				
-			}
-			else
-			{
-				// 답글 신규 작성이라면
+				// 댓글 신규 작성이라면
 				service.insertGesiRepl(map);
-				
+			}
+			else if(map.get("bd_gesi_repl_Chk").toString().equals("replRepl"))
+			{
+				// 댓글의 답글이라면
 			}
 			
 		} catch (Exception e)
@@ -281,6 +282,52 @@ public class BoardController
 		
 		return "redirect:/bddetail";
 		
+	}
+	
+	// 댓글 수정
+	@RequestMapping(value="/goupdategesirepl")
+	public String gesiReplUpdate(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
+	{
+		
+		logger.info("**** 댓글 수정 goupdategesirepl() 파라미터 출력 :"+map);
+		
+		try
+		{
+			service.updateGesiRepl(map);
+			
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		// 리다이렉트 시 파라미터 값 넘겨주기
+		redirectAttr.addFlashAttribute("bdSid", map.get("bdSid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_sid", map.get("bd_grp_sid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_LV", map.get("bd_grp_LV").toString());
+		
+		return "redirect:/bddetail";
+	}
+	
+	@RequestMapping(value="/godeletereple")
+	public String gesiReplDelete(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
+	{
+		logger.info("**** 댓글 삭제 gesiReplDelete() 파라미터 출력 :"+map);
+		
+		try
+		{
+			service.deleteGesiRepl(map.get("bd_gesi_repl_sid").toString());
+			
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		// 리다이렉트 시 파라미터 값 넘겨주기
+		redirectAttr.addFlashAttribute("bdSid", map.get("bdSid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_sid", map.get("bd_grp_sid").toString());
+		redirectAttr.addFlashAttribute("bd_grp_LV", map.get("bd_grp_LV").toString());
+		
+		return "redirect:/bddetail";
 	}
 	
 }

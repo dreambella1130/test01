@@ -271,10 +271,38 @@ public class BoardService implements IBoardService
 		// 댓글 번호 가져오기
 		String gesiRepSid = dao.selectGesiReplSID();
 		
-		map.put("gesiRepSid", gesiRepSid);
+		map.replace("bd_gesi_repl_sid", gesiRepSid);
+		
+		// 댓글 내용 줄바꿈 HTML 태그로 변경하기
+		map.replace("bd_gesi_repl_cont", map.get("bd_gesi_repl_cont").toString().replace("\r\n","<br>"));
 		
 		// 댓글 insert 하기
 		dao.insertGesiRepl(map);
+	}
+
+	// 댓글 수정하기
+	@Override
+	public void updateGesiRepl(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 서비스 호출(updateGesiRepl) map 출력 :"+map);
+		
+		// 댓글 내용 줄바꿈 HTML 태그로 변경하기
+		map.replace("bd_gesi_repl_cont", map.get("bd_gesi_repl_cont").toString().replace("\r\n","<br>"));
+		
+		dao.updateGesiRepl(map);
+	}
+
+	// 댓글 삭제하기
+	@Override
+	public void deleteGesiRepl(String bd_gesi_repl_sid) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 서비스 호출(deleteGesiRepl) String 출력 :"+bd_gesi_repl_sid);
+		
+		dao.deleteGesiRepl(bd_gesi_repl_sid);
 	}
 	
 	

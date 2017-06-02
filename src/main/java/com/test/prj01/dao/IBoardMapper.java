@@ -26,7 +26,7 @@ public interface IBoardMapper
 	// 게시판 댓글 가져오기
 	public List<Map<String, Object>> selectBDRepl(String bdSid);
 	
-	// 게시판 번호 생성하기
+	// 게시판 번호(pk) 생성하기
 	public String selectBDSID();
 	
 	// 게시글 작성하기
@@ -62,10 +62,16 @@ public interface IBoardMapper
 	// 게시글 신고하기
 	public void updateBDBL(String bdSid);
 	
-	// 댓글 번호 생성하기
+	// 댓글 번호(pk) 생성하기
 	public String selectGesiReplSID();
 	
 	// 댓글 등록하기
 	public void insertGesiRepl(Map<String, Object> map);
+	
+	// 댓글 수정하기
+	public void updateGesiRepl(Map<String, Object> map);
+	
+	// 댓글 삭제하기
+	public void deleteGesiRepl(String bd_gesi_repl_sid);
 	
 }
