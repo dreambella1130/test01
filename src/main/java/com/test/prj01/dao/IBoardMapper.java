@@ -5,6 +5,9 @@ import java.util.Map;
 
 public interface IBoardMapper
 {
+	// 전체 게시물 목록 가져오기
+	public int selectTotalBDCnt(Map<String, Object> map);
+	
 	// 게시판 전체 목록 가져오기
 	public List<Map<String, Object>> selectBoardList(Map<String, Object> map);
 	
@@ -73,5 +76,11 @@ public interface IBoardMapper
 	
 	// 댓글 삭제하기
 	public void deleteGesiRepl(String bd_gesi_repl_sid);
+	
+	// 댓글의 답글 등록을 위해 댓글 그룹 순서(REPL_LV) 재설정 하기
+	public void updateGesiReplGroupLV(Map<String, Object> map);
+	
+	// 댓글의 답글 등록하기
+	public void insertGesiReplReNew(Map<String, Object> map);
 	
 }

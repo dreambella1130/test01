@@ -98,7 +98,21 @@ FROM
     FROM BOARD A
     WHERE BD_DELCK = 'N'
 )
-WHERE NUM BETWEEN 1 AND 10;
+WHERE NUM BETWEEN 11 AND 20;
+
+SELECT *
+FROM BOARD;
+
+-- 전체 게시물 수 구하기
+
+
+SELECT *
+FROM BOARD
+WHERE UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER('내용')||'%';
+--WHERE UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER('제목')||'%';
+--WHERE (BD_CONT LIKE '%'||UPPER('ID')||'%' OR BD_TITLE LIKE '%'||UPPER('제목')||'%');
+--WHERE BD_CONT LIKE '%'||UPPER('RE')||'%';
+
 
 
 -- 다음글 구하기_1
@@ -246,17 +260,20 @@ UPDATE BD_REPL
 SET REPL_CONT = '수정내용'
 WHERE REPL_SID = 23;
 
-DELETE BD_REPL
-WHERE REPL_SID = 23;
 
 SELECT *
-FROM BD_REPL;
+FROM BD_REPL
+ORDER BY 2, 3;
 
 DESC BD_REPL;
 
 UPDATE BD_REPL
 SET REPL_BLCK = 'N'
 WHERE BD_SID = 3;
+
+UPDATE BD_REPL
+SET REPL_LV = REPL_LV+1
+WHERE REPL_GRP = 25 AND REPL_LV > 1;
 
 -- 게시판 추천&신고 이력
 -- GUBUN_SID - 2: 투표-추천 / 3: 투표-신고

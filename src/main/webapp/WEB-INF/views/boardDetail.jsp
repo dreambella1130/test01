@@ -25,6 +25,7 @@
 	<input type="hidden" id="bd_title" name="bd_title" value="${bdDetail.BD_TITLE}">
 	<input type="hidden" id="bd_gesi_repl_sid" name="bd_gesi_repl_sid"/>
 	<input type="hidden" id="bd_gesi_repl_grp" name="bd_gesi_repl_grp"/>
+	<input type="hidden" id="bd_gesi_repl_LV" name="bd_gesi_repl_LV"/>
 	<input type="hidden" id="bd_gesi_repl_dep" name="bd_gesi_repl_dep"/>
 	<input type="hidden" id="bd_gesi_repl_cont" name="bd_gesi_repl_cont"/>
 	<input type="hidden" id="bd_gesi_repl_Chk" name="bd_gesi_repl_Chk"/>
@@ -123,23 +124,25 @@
 		<dl>
 			<dt class="replMargin">
 				${replList.MEM_NICK } <span class="replTime">${replList.REPL_REGI }</span>
-				<span class="flotR">
-					<a href="javascript:void(0);">답글</a> | 
-					<a href="javascript:void(0);" onclick="repleEdit(${replList.REPL_SID });"> 수정</a> | 
+				<span class="flotR showRepl" id="btn_${replList.REPL_SID }">
+					<a href="javascript:void(0);"
+						onclick="repleEdit(${replList.REPL_SID }, 'replReNew', ${replList.REPL_GRP }, ${replList.REPL_LV }, ${replList.REPL_DEPT });">답글</a> |
+					<a href="javascript:void(0);" onclick="repleEdit(${replList.REPL_SID }, 'repleEdit');"> 수정</a> | 
 					<a href="javascript:void(0);" onclick="repleDelete(${replList.REPL_SID })"> 삭제 </a> 
 				</span>
 			</dt>
 			<dd class="replMargin showRepl" id="origin_${replList.REPL_SID }">${replList.REPL_CONT }</dd>
 			
-	<!-- 댓글 수정 폼 ----------------------------------------------------------------------------------->
+		<!-- 댓글 수정 폼 ----------------------------------------------------------------------------------->
 	
 			<dd class="replMargin hiddenRepl" style="display: none;" id="edit_${replList.REPL_SID }">
 				<div class="form-group row">
 					<div class="col-sm-11">
-						<textarea rows="3" class="form-control replTxtLength" id="editTxt_${replList.REPL_SID }">${fn:replace(replList.REPL_CONT, '<br>', enter)}</textarea>
+						<textarea rows="3" class="form-control replTxtLength" id="editTxt_${replList.REPL_SID }">${fn:replace(fn:replace(replList.REPL_CONT, '&nbsp; ', ''),'<br>', enter) }</textarea>
 					</div>
-					<div class="col-sm-1 gesiReplBtn">
-						<p class="replBtn">등록</p>
+					<div class="col-sm-1 btn-group">
+						<button type="button" class="btn btn-primary gesiReplBtn">등록</button>
+						<button type="button" class="btn btn-default" onclick="repleEdit();">취소</button>
 					</div>
 				</div>
 				<div class="row">
@@ -149,6 +152,27 @@
 					</div>
 				</div>
 			</dd> <!-- end 댓글 수정 -->
+
+		<!-- 댓글의 답글 폼 ----------------------------------------------------------------------------------->	
+		
+			<dd class="replMargin hiddenRepl" style="display: none;" id="replRepl_${replList.REPL_SID }">
+				<div class="form-group row">
+					<div class="col-sm-11">
+						<textarea rows="3" class="form-control replTxtLength" id="replReNew_${replList.REPL_SID }" placeholder="댓글을 입력해주세요"></textarea>
+					</div>
+					<div class="col-sm-1 btn-group">
+						<button type="button" class="btn btn-primary gesiReplBtn">등록</button>
+						<button type="button" class="btn btn-default" onclick="repleEdit();">취소</button>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-10"></div>
+					<div class="col-sm-2">
+						<span class="countColor replReNew_${replList.REPL_SID }_chk">0</span> / 150자
+					</div>
+				</div>
+			</dd> <!-- end 댓글 답글 폼 -->
+			
 		</dl>
 	</c:forEach>
 	
@@ -160,8 +184,8 @@
 			<div class="col-sm-11">
 				<textarea rows="3" class="form-control replTxtLength" id="newReplCon" placeholder="댓글을 입력해주세요"></textarea>
 			</div>
-			<div class="col-sm-1 gesiReplBtn">
-				<p class="replBtn">등록</p>
+			<div class="col-sm-1">
+				<p class="replBtn gesiReplBtn">등록</p>
 			</div>
 		</div>
 		

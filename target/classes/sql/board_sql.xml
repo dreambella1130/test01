@@ -4,13 +4,40 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace="com.test.prj01.dao.IBoardMapper">
-  
+
+	<!-- 전체 게시물 수 구하기 -->
+  	<select id="selectTotalBDCnt" parameterType="java.util.Map" resultType="int">
+  	
+  		SELECT COUNT(*) AS "COUNT"
+		FROM BOARD
+		WHERE BD_DELCK = 'N'
+		<choose>
+			<when test="searchKey == 'bdTitle' and searchValue != null">
+			<![CDATA[
+				AND UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
+			]]>
+			</when>
+			<when test="searchKey == 'bdTitle' and searchValue != null">
+			<![CDATA[
+				AND UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
+			]]>
+			</when>
+			<when test="searchKey == 'all' and searchValue != null">
+			<![CDATA[
+				AND ( UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%'
+				OR UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%' )
+			]]>
+			</when>
+		</choose>
+	
+  	</select>
+  	
 	<!-- 게시판 목록 가져오기 -->
 	<select id="selectBoardList" parameterType="java.util.Map" resultType="java.util.Map">
-  	<![CDATA[
   		SELECT *
   		FROM
-  		(
+  		(	
+  			<![CDATA[
 			SELECT ROW_NUMBER() OVER(ORDER BY BD_GRP_SID DESC, BD_GRP_LV) AS "NUM"
 	    		, BD_SID
 	    		, BD_GRP_SID
@@ -30,16 +57,31 @@
 	        		END AS "BD_BLCK"
 			FROM BOARD A
 			WHERE BD_DELCK = 'N'
+			]]>
+			<choose>
+				<when test="searchKey == 'bdTitle' and searchValue != null">
+				<![CDATA[
+					AND UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
+				]]>
+				</when>
+				<when test="searchKey == 'bdTitle' and searchValue != null">
+				<![CDATA[
+					AND UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
+				]]>
+				</when>
+				<when test="searchKey == 'all' and searchValue != null">
+				<![CDATA[
+					AND ( UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%'
+					OR UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%' )
+				]]>
+				</when>
+			</choose>
 		)
-  	]]>
   		<where>
-  			<if test="startN != null and startN != '' and endN != null and endN != ''">
+  			<if test="start != null and start != '' and end != null and end != ''">
   			<![CDATA[
-  				AND NUM BETWEEN #{startN} AND #{endN}
+  				AND NUM BETWEEN #{start} AND #{end}
   			]]>
-  			</if>
-  			<if test="bdSid != null and bdSid !=''">
-  				AND BD_SID = #{bdSid}
   			</if>
   		</where>
   	</select>
@@ -390,12 +432,50 @@
 			, 1 )
   	</insert>
   	
+  	<!-- 댓글의 답글 등록하기 -->
+  	<insert id="insertGesiReplReNew" parameterType="java.util.Map">
+  		INSERT INTO BD_REPL
+  			( REPL_SID
+  			, REPL_GRP
+  			, REPL_LV
+  			, REPL_DEPT
+  			, REPL_CONT
+  			, REPL_REGI
+  			, REPL_UPDT
+  			, REPL_DELCK
+  			, REPL_BLCK
+  			, BD_SID
+  			, MEM_SID )
+		VALUES
+			( #{bd_gesi_repl_sid}
+			, #{bd_gesi_repl_grp}
+			, #{bd_gesi_repl_LV}+1
+			, #{bd_gesi_repl_dep}+1
+			, #{bd_gesi_repl_cont}
+			, SYSDATE
+			, SYSDATE
+			, 'N'
+			, 0
+			, #{bdSid}
+			, 1 )
+  	</insert>
+  	
+  	<!-- 댓글의 답글 등록을 위해 댓글 그룹 순서(REPL_LV) 재설정 하기 -->
+  	<update id="updateGesiReplGroupLV" parameterType="java.util.Map">
+  		UPDATE BD_REPL
+		SET REPL_LV = REPL_LV+1
+		WHERE REPL_GRP = #{bd_gesi_repl_grp}
+		AND REPL_LV > #{bd_gesi_repl_LV}
+  	</update>
+  	
+  	<!-- 댓글 수정하기 -->
   	<update id="updateGesiRepl" parameterType="java.util.Map">
   		UPDATE BD_REPL
 		SET REPL_CONT = #{bd_gesi_repl_cont}
 		WHERE REPL_SID = #{bd_gesi_repl_sid}
   	</update>
   	
+  	<!-- 댓글 삭제하기 -->
   	<delete id="deleteGesiRepl" parameterType="String">
   		DELETE BD_REPL
 		WHERE REPL_SID = #{bd_gesi_repl_sid}

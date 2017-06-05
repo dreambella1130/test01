@@ -9,59 +9,28 @@ $(document).ready(function()
 		$("#myModal").modal();
 	});
 	
-	// 사용자 접속 ip 알아내기
-	$.getJSON("https://api.ipify.org?format=jsonp&callback=?", function(json)
-	{
-		clientIP = json.ip;
-		 
-	});
-	
 	// 게시글에 좋아요 클릭 이벤트 - 호출 : boardDetail.jsp
 	$(".goVote").click(function()
 	{
 		var voteType = $(this).attr("id");
 		var url="/prj01/voteboard";		// 추천 또는 신고 클릭 시 처리 할 주소
-	    var params="bdSid="+$("#bdSid").val()+"&voteType="+voteType+"&clientIP="+clientIP;
+	    var params="bdSid="+$("#bdSid").val()+"&voteType="+voteType+
 	    
 	    //alert("클릭 이벤트 :"+$(this).attr("id"));
 	    //alert("**********params :"+params+"**********");
 	    
-		// ip 중복 검사 후 좋아요 숫자 +1 해주기
-		$.ajax(
-	    {    
-	        type:"POST",  
-	        url:url,      
-	        data:params,
-	        success:function(args)
-	        {
-	        	//alert("********중복체크 :"+args.result+"********");
-	        	
-	        	if(voteType == "likeBoard")	// 추천 클릭의 경우
-	        	{
-	        		if(args.result == "Y")
-		        	{
-		        		alert("이미 추천하셨습니다.");
-		        	}
-		        	else
-		        	{
-		        		$(".countLike").html(args.result);
-		        	}
-	        	}
-	        	else if(voteType == "badBoard")	// 신고 클릭의 경우
-	        	{
-	        		if(args.result == "Y")
-		        	{
-		        		alert("이미 신고하셨습니다.");
-		        	}
-	        	}
-	        	
-	        },   
-	        error:function(e)
-	        {  
-	            alert(e.responseText);  
-	        }
-	        
-	    }); // -- end $.ajax()
+	    // 사용자 접속 ip 알아내기
+	    $.getJSON("https://api.ipify.org?format=jsonp&callback=", function(json)
+		{
+			params = params + "&clientIP="+json.ip;
+			
+			//alert("******접속 IP 호출 :"+json.ip);
+			
+			// 좋아요 +1 해주기
+			updateLike(voteType, url, params);
+			 
+		}); // end $.getJSON()
+		
 		
 	});	//-- end $(".goVote").click()
 	
@@ -83,18 +52,20 @@ $(document).ready(function()
 		}
 		
 		
-	});
+	}); // end $(".replTxtLength").bind()
 	
 	// 댓글 입력 버튼 눌렀을 때	- 호출 : boardDetail.jsp
 	$(".gesiReplBtn").click(function()
 	{
 		//alert("댓글 등록 이벤트 호출");
-		alert("*****"+$(this).siblings().find('textarea').attr("id")+"*****");
+		//alert("*****"+$(this).parent().siblings().find('textarea').attr("id")+"*****");
 		
-		var newOldChk = $(this).siblings().find('textarea').attr("id");
+		var newOldChk = $(this).parent().siblings().find('textarea').attr("id");
 		
 		
 		txtChk = $("#"+newOldChk).val().trim();
+		
+		alert("*****"+newOldChk.substring(0,newOldChk.indexOf('_')) + "*****");
 		
 		if(txtChk == null || txtChk == "")
 		{
@@ -110,15 +81,22 @@ $(document).ready(function()
 			return;
 		}
 		
+		// 신규 댓글 작성
 		if(newOldChk == 'newReplCon')
 		{
-			//alert("댓글 신규등록 :"+txtChk+"*******");
+			alert("댓글 신규등록 :"+txtChk+"*******");
 			$("#bd_gesi_repl_Chk").val("NewRepl");
 			$("#submitForm").attr("action", "/prj01/goinsertgesirepl");
 		}
-		else
+		else if(newOldChk.substring(0, newOldChk.indexOf('_')) == "replReNew")
 		{
-			//alert("댓글 수정 번호:"+newOldChk.substring(newOldChk.indexOf('_')+1)+"*******");
+			alert("댓글 답변 등록 :"+txtChk+"*******");
+			$("#bd_gesi_repl_Chk").val("replReNew");
+			$("#submitForm").attr("action", "/prj01/goinsertgesirepl");
+		}
+		else if(newOldChk.substring(0, newOldChk.indexOf('_')) == "editTxt")
+		{
+			alert("댓글 수정 번호:"+newOldChk.substring(newOldChk.indexOf('_')+1)+"*******");
 			
 			// 댓글 수정 체크를 위해 값 넣어주기
 			$("#bd_gesi_repl_Chk").val("updateRepl");
@@ -134,7 +112,10 @@ $(document).ready(function()
 	
 });
 
-// 목록 상세 페이지로 가기 - 호출 : boardList.jsp
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//목록 상세 페이지로 가기 - 호출 : boardList.jsp
 function goSelect(bdsid, bd_grp_sid, bd_grp_LV)
 {
 	$("#bdSid").val(bdsid);
@@ -144,6 +125,19 @@ function goSelect(bdsid, bd_grp_sid, bd_grp_LV)
 	$("#submitForm").attr("action", "/prj01/bddetail");
 	$("#submitForm").submit();
 }
+
+//페이지 이동 함수	- 호출 : boardList.jsp
+function listPage(pageNum)
+{
+	alert("*******"+pageNum+"페이지로 이동");
+	
+	$("#pageNum").val(pageNum);
+	$("#submitForm").attr("action", '/prj01/boardlist');
+	$("#submitForm").submit();
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // 글 수정폼으로 가기 - 호출 : boardDetail.jsp
 function goBDEdit()
@@ -160,13 +154,6 @@ function goBDDelete()
 	$("#submitForm").submit();
 }
 
-// 수정 취소 버튼 선택 시 글 상세보기 view로 돌아가기 - 호출 : boardUpdate.jsp
-function updateCancel()
-{
-	$("#bdUpdateForm").attr("action", "/prj01/bddetail");
-	$("#bdUpdateForm").submit();
-}
-
 // 답글 폼으로 이동 - 호출 : boardDetail.jsp
 function goBoardReple()
 {
@@ -174,20 +161,40 @@ function goBoardReple()
 	$("#submitForm").submit();
 }
 
-// 댓글 수정 폼 보여주기
-function repleEdit(replSid)
+// 댓글 수정/답글 폼 보여주기 - 호출 : boardDetail.jsp
+function repleEdit(replSid, gubun, reGrp, reLv, reDep)
 {
 	// 기본 셋팅
 	$(".hiddenRepl").hide();
 	$(".showRepl").show();
+	$("#btn_"+replSid).hide();
+	
+	//alert("***** replSid :"+replSid+", gubun :"+ gubun);
 	
 	// 요청온 수정 댓글 폼 보여주기
-	$("#origin_"+replSid).hide();
-	$("#edit_"+replSid).show();
+	if(gubun == 'repleEdit')
+	{
+		$("#origin_"+replSid).hide();
+		$("#edit_"+replSid).show();
+		
+	}
+	else if(gubun == 'replReNew')
+	{
+		//alert("댓글의 답글 클릭");
+		// 댓글의 답글 시 해당 textarea 보여주기
+		$("#replRepl_"+replSid).show();
+		
+		// 답글 등록을 위한 원글에 대한 그룹번호, 그룹순서 등 값 설정해주기
+		$("#bd_gesi_repl_grp").val(reGrp);
+		$("#bd_gesi_repl_LV").val(reLv);
+		$("#bd_gesi_repl_dep").val(reDep);
+		
+	}
+	
 	
 }
 
-// 댓글 삭제 요청 시 모달 팝업 띄워서 삭제여부 재확인하기
+// 댓글 삭제 요청 시 모달 팝업 띄워서 삭제여부 재확인하기 - 호출 : boardDetail.jsp
 function repleDelete(replSid)
 {
 	 $("#replModal").modal();
@@ -195,9 +202,60 @@ function repleDelete(replSid)
 	 $("#bd_gesi_repl_sid").val(replSid);
 }
 
-// 댓글 삭제 폼 전송
+// 댓글 삭제 폼 전송 - 호출 : boardDetail.jsp
 function goDeleteRepl()
 {
 	$("#submitForm").attr("action","/prj01/godeletereple");
 	$("#submitForm").submit();
 }
+
+//좋아요 +1 해주기 - 호출 : boardDetail.jsp
+function updateLike(voteType, url, params)
+{
+	// ip 중복 검사 후 좋아요 숫자 +1 해주기
+	$.ajax(
+    {    
+        type:"POST",  
+        url:url,      
+        data:params,
+        success:function(args)
+        {
+        	//alert("********중복체크 :"+args.result+"********");
+        	
+        	if(voteType == "likeBoard")	// 추천 클릭의 경우
+        	{
+        		if(args.result == "Y")
+	        	{
+	        		alert("이미 추천하셨습니다.");
+	        	}
+	        	else
+	        	{
+	        		$(".countLike").html(args.result);
+	        	}
+        	}
+        	else if(voteType == "badBoard")	// 신고 클릭의 경우
+        	{
+        		if(args.result == "Y")
+	        	{
+	        		alert("이미 신고하셨습니다.");
+	        	}
+        	}
+        	
+        },   
+        error:function(e)
+        {  
+            alert(e.responseText);  
+        }
+        
+    }); // -- end $.ajax()
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//수정 취소 버튼 선택 시 글 상세보기 view로 돌아가기 - 호출 : boardUpdate.jsp
+function updateCancel()
+{
+	$("#bdUpdateForm").attr("action", "/prj01/bddetail");
+	$("#bdUpdateForm").submit();
+}
+

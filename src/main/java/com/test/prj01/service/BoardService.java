@@ -21,16 +21,28 @@ public class BoardService implements IBoardService
 	private SqlSession session;
 	private IBoardMapper dao;
 	
+	
+	// 전체 게시물 목록 가져오기
+	@Override
+	public int selectTotalBD(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		int result = 0;
+
+		logger.info("전체 게시물 목록 가져오기(selectTotalBD) map 출력 :"+map);
+		
+		result = dao.selectTotalBDCnt(map);
+		
+		return result;
+	}
+
 	// 게시판 전체 목록 가져오기
 	@Override
-	public List<Map<String, Object>> getBoardList() throws Exception
+	public List<Map<String, Object>> getBoardList(Map<String, Object> map) throws Exception
 	{
 		dao = session.getMapper(IBoardMapper.class);
 		
-		Map<String, Object> map = new HashMap<String, Object>();
-		
-		//map.put("startN", 1);
-		//map.put("endN", 10);
+		logger.info("게시판 전체 목록 가져오기 (서비스_getBoardList) map 출력 :"+map);
 		
 		List<Map<String, Object>> list = dao.selectBoardList(map);
 		
@@ -304,6 +316,30 @@ public class BoardService implements IBoardService
 		
 		dao.deleteGesiRepl(bd_gesi_repl_sid);
 	}
+
+	// 댓글의 답글 등록하기
+	@Override
+	public void insertGesiReplre(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 서비스 호출(insertGesiReplre) map 출력 :"+map);
+		
+		// 댓글 번호(pk) 생성
+		map.put("bd_gesi_repl_sid", Integer.parseInt(dao.selectGesiReplSID()));
+		
+		map.replace("bd_gesi_repl_LV", Integer.parseInt(map.get("bd_gesi_repl_LV").toString()));
+		map.replace("bd_gesi_repl_dep", Integer.parseInt(map.get("bd_gesi_repl_dep").toString()));
+		
+		// 댓글의 답글 등록 전 답글 그룹 순서 재설정하기
+		dao.updateGesiReplGroupLV(map);
+		
+		// 댓글의 답글 등록하기
+		dao.insertGesiReplReNew(map);
+		
+		
+	}
+	
 	
 	
 	

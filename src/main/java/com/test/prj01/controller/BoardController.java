@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import com.test.prj01.service.IBoardService;
+import com.test.prj01.service.MyUtil;
 
 @Controller
 public class BoardController
@@ -28,21 +30,83 @@ public class BoardController
 	@Autowired
 	private IBoardService service;
 	
+	@Resource(name="myUtil")
+	private MyUtil myUtil;
+	
 	// 게시판 전체 목록 가져오기
 	@RequestMapping(value="/boardlist")
-	public String boardList(Model model)
+	public String boardList(Model model, String searchKey, String searchValue, String pageNum, String numPer)
 	{
 		List<Map<String, Object>> list = null;
+		Map<String, Object> map = new HashMap<String, Object>();
+		
+		logger.info("***** /boardlist 호출 searchKey :"+searchKey+", searchValue :"+searchValue+", pageNum :"+pageNum+"*****");
+		
+		map.put("pageNum", pageNum);
+		map.put("numPer", numPer);
+		
+		// 검색항목이 있다면
+		if(searchKey != null && !searchKey.equals(""))
+			map.put("searchKey", searchKey);
+		
+		// 검색어가 있다면
+		if(searchValue != null && !searchValue.equals(""))
+			map.put("searchValue", searchValue);
+		
+		// 페이징 처리
+		int numPerPage = 10;					// 한 화면에 보여주는 게시물 수
+		
+		if(numPer != null && !numPer.equals(""))  		
+			numPerPage = Integer.parseInt(numPer);
+		
+		int dataCount = 0;			// 전체 게시물 수
+		int total_page = 0;			// 전체 페이지 수
+		
+		int current_page = 1;		// 현재 페이지 기본값
+		
+		int start = 0;				// 리스트에 출력할 시작 값
+		int end = 0;				// 리스트에 출력할 종료 값
+		
+		if(pageNum == null)
+			pageNum = "";
+		
+		// 현재 페이지 재설정 하기
+		if(!pageNum.equals(""))
+		{
+			current_page = Integer.parseInt(pageNum);
+		}
 		
 		try
 		{
-			list = service.getBoardList();
+			// 전체 게시물 수 구하기
+			dataCount = service.selectTotalBD(map);
+			
+			// 전체 페이지 수 구하기
+			if(dataCount != 0)
+				total_page = myUtil.getPageCount(numPerPage, dataCount);
+			
+			// 다른 사람이 자료를 삭제하여 전체 페이지수가 변화 된 경우
+			if(total_page < current_page)
+				current_page = total_page;
+			
+			// 리스트에 출력할 데이터 값 설정하기
+			start = (current_page-1) * numPerPage + 1;
+			end = current_page * numPerPage;
+			
+			map.put("start", start);
+			map.put("end", end);
+			map.put("pageIndexList", myUtil.pageIndexList(current_page, total_page));
+			
+			list = service.getBoardList(map);
 			
 		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
 		
+		
+			
+		model.addAttribute("searchData", map);
 		model.addAttribute("list", list);
 		
 		return "boardList";
@@ -263,9 +327,10 @@ public class BoardController
 				// 댓글 신규 작성이라면
 				service.insertGesiRepl(map);
 			}
-			else if(map.get("bd_gesi_repl_Chk").toString().equals("replRepl"))
+			else if(map.get("bd_gesi_repl_Chk").toString().equals("replReNew"))
 			{
 				// 댓글의 답글이라면
+				service.insertGesiReplre(map);
 			}
 			
 		} catch (Exception e)

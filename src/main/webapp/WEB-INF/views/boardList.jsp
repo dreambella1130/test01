@@ -17,6 +17,10 @@
 	<input type="hidden" id="bdSid" name="bdSid"/>
 	<input type="hidden" id="bd_grp_sid" name="bd_grp_sid">
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV">
+	<input type="hidden" id="searchKey" name="searchKey" value=${searchData.searchKey }>
+	<input type="hidden" id="searchValue" name="searchValue" value=${searchData.searchValue }>
+	<input type="hidden" id="pageNum" name="pageNum" value=${searchData.pageNum }>
+	<input type="hidden" id="numPer" name="numPer" value=${searchData.numPer }>
 </form>
 <div class="container">
 	<div class="page-header">
@@ -65,6 +69,25 @@
 				</c:forEach>
 			</tbody>
 		</table>
+		<!-- 페이징 처리 부분 ----------------------------------------------------------------------------------->
+		<div class="row">
+			<div class="col-sm-2"></div>
+			<div class="col-sm-8">
+				<ul class="pager">
+					<li class="previous"><a href="#">Previous</a></li>
+					<li>${searchData.pageIndexList }</li>
+				<li class="next"><a href="#">Next</a></li>
+			</ul>
+			</div>
+			<div class="col-sm-2"></div>
+		</div>
+		
+		<!-- 검색 부분 ------------------------------------------------------------------------------------------->
+		<div class="row">
+		
+		
+		</div>
+		
 	</div>
 </div>
 

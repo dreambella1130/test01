@@ -5,8 +5,11 @@ import java.util.Map;
 
 public interface IBoardService
 {
+	// 전체 게시물 목록 가져오기
+	public int selectTotalBD(Map<String, Object> map) throws Exception;
+		
 	// 게시판 전체 목록 가져오기
-	public List<Map<String, Object>> getBoardList() throws Exception;
+	public List<Map<String, Object>> getBoardList(Map<String, Object> map) throws Exception;
 	
 	// 게시판 상세내역 가져오기
 	public Map<String, Object> getbdDetail(String bdSid) throws Exception;
@@ -40,4 +43,8 @@ public interface IBoardService
 	
 	// 댓글 삭제하기
 	public void deleteGesiRepl(String bd_gesi_repl_sid) throws Exception;
+	
+	// 댓글의 답글 등록하기
+	public void insertGesiReplre(Map<String, Object> map) throws Exception;
+	
 }
