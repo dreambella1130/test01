@@ -46,6 +46,7 @@ public class BoardService implements IBoardService
 		
 		List<Map<String, Object>> list = dao.selectBoardList(map);
 		
+		/*
 		// 들여쓰기 설정 해주기
 		for(int i=0; i<list.size(); i++)
 		{
@@ -57,6 +58,7 @@ public class BoardService implements IBoardService
 				}
 			}
 		}
+		*/
 		
 		return list;
 	}
@@ -128,6 +130,7 @@ public class BoardService implements IBoardService
 		List<Map<String, Object>> bdReply = dao.selectBDRepl(bdSid);
 		
 		// 댓글 깊이 만큼 공백 발생시키기
+		/*
 		for(int i=0; i<bdReply.size(); i++)
 		{
 			if(!bdReply.get(i).get("REPL_DEPT").toString().equals("0"))
@@ -151,7 +154,7 @@ public class BoardService implements IBoardService
 				
 			}
 		}
-		
+		*/
 		return bdReply;
 		
 	}
@@ -339,6 +342,22 @@ public class BoardService implements IBoardService
 		
 		
 	}
+
+	// 로그인
+	@Override
+	public Map<String, Object> selectMemLogin(Map<String, Object> map) throws Exception
+	{
+		logger.info("***** selectMemLogin 컨트롤러에서 넘어온 파라미터 출력 :"+map);
+		
+		Map<String, Object> result = new HashMap<String, Object>();
+		
+		result = dao.selectMemberLogin(map);
+		
+		logger.info("***** 로그인 시 db조회 결과 출력 :"+result);
+		
+		return result;
+	}
+	
 	
 	
 	

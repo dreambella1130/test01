@@ -9,7 +9,7 @@
 	<version>1.0.0-BUILD-SNAPSHOT</version>
 	<properties>
 		<!-- 자바 컴파일러의 버전 -->
-		<!-- 1. java version을 1.6 에서 1.8로 springframework 버전을 3.1.1로 4.3.4로 변경합니다. -->
+		<!-- 1. java version을 1.6 에서 1.8로 springframework 버전을 3.1.1에서  4.3.4로 변경합니다. -->
 		<java-version>1.8</java-version>
 		<!-- 스프링 프레임워크의 버전 -->
 		<org.springframework-version>4.3.4.RELEASE</org.springframework-version>
@@ -87,9 +87,33 @@
 			<groupId>org.bgee.log4jdbc-log4j2</groupId>
 			<artifactId>log4jdbc-log4j2-jdbc4</artifactId>
 			<version>1.16</version>
-		</dependency>  
-
-
+		</dependency>
+		
+		<!-- @추가 : Spring Security -->
+        <dependency>
+	    	<groupId>org.springframework.security</groupId>
+	    	<artifactId>spring-security-web</artifactId>
+	    	<version>4.2.2.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>4.2.2.RELEASE</version>
+		</dependency>
+		
+		<!-- @추가 : 파일 업로드 Commons FileUpload -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+            <version>1.2.1</version>
+        </dependency>
+         
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+		
 		<!-- Spring -->
 		<dependency>
 			<groupId>org.springframework</groupId>

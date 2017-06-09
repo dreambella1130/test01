@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.FlashMap;
+import org.springframework.web.bind.annotation.SessionAttributes;
+import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
@@ -23,15 +25,63 @@ import com.test.prj01.service.IBoardService;
 import com.test.prj01.service.MyUtil;
 
 @Controller
+@SessionAttributes({"memSid", "memNick"})
 public class BoardController
 {
 	private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
+	private static final String USER_SESSION_KEY = "memSid";
 	
 	@Autowired
 	private IBoardService service;
 	
 	@Resource(name="myUtil")
 	private MyUtil myUtil;
+	
+	// 로그인 (ajax)
+	@RequestMapping(value="/login")
+	public @ResponseBody Map<String, Object> memberLogin(Model model, @RequestParam Map<String, Object> map)
+	{
+		Map<String, Object> ajaxResult = new HashMap<String, Object>();
+		logger.info("***로그인(/login) 파라미터 출력 : "+map);
+		
+		try
+		{
+			ajaxResult = service.selectMemLogin(map);
+			
+		} catch (Exception e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		logger.info("***** ajaxResult map 출력 :"+ajaxResult);
+		
+		if(ajaxResult != null)
+		{
+			model.addAttribute("memSid", ajaxResult.get("MEM_SID"));
+			model.addAttribute("memNick", ajaxResult.get("MEM_NICK"));
+		}
+		
+		return ajaxResult;
+	}
+	
+	// 로그아웃
+	@RequestMapping(value="/logout")
+	public String logout(SessionStatus session)
+	{
+		// 세션 종료
+		session.setComplete();
+		
+		return "redirect:/boardlist";
+	}
+	
+	// 회원가입
+	@RequestMapping(value="/costomCheck")
+	public String loginForm(Model model, String actionKey)
+	{
+	
+		return "/customForm";
+	}
 	
 	// 게시판 전체 목록 가져오기
 	@RequestMapping(value="/boardlist")
@@ -54,7 +104,7 @@ public class BoardController
 			map.put("searchValue", searchValue);
 		
 		// 페이징 처리
-		int numPerPage = 10;					// 한 화면에 보여주는 게시물 수
+		int numPerPage = 10;					// 한 화면(1페이지)에 보여주는 게시물 수
 		
 		if(numPer != null && !numPer.equals(""))  		
 			numPerPage = Integer.parseInt(numPer);
@@ -182,9 +232,13 @@ public class BoardController
 	
 	// 게시글 작성내용 insert
 	@RequestMapping(value="/boardinsert")
-	public String boardInsert(Model model, @RequestParam Map<String, Object> map)
+	public String boardInsert(Model model, @RequestParam Map<String, Object> map, final HttpServletRequest request)
 	{
 		logger.info("boardInsert() :"+map.toString());
+		
+		String memSid = String.valueOf(request.getSession().getAttribute(USER_SESSION_KEY));
+		
+		map.put("memSid", memSid);
 		
 		try
 		{
@@ -281,12 +335,16 @@ public class BoardController
 	// 투표(좋아요, 신고) ajax
 	@RequestMapping(value="/voteboard")
 	@ResponseBody
-	public Map<String, Object> boardVote(Model model, @RequestParam Map<String, Object> map)
+	public Map<String, Object> boardVote(Model model, @RequestParam Map<String, Object> map, final HttpServletRequest request)
 	{
 		logger.info("**** 투표 boardVote() ajax 파라미터 출력 :"+map);
 		
 		Map<String, Object> ajaxResult = new HashMap<String, Object>();
 		String msg = "";
+		String memSid = String.valueOf(request.getSession().getAttribute(USER_SESSION_KEY));
+		
+		if(memSid.equals("") || memSid != null)
+			map.put("memSid",memSid);
 		
 		try
 		{
@@ -315,9 +373,13 @@ public class BoardController
 	
 	// 댓글 등록
 	@RequestMapping(value="/goinsertgesirepl")
-	public String gesiReplInsert(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
+	public String gesiReplInsert(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr
+			, final HttpServletRequest request)
 	{
 		logger.info("**** 댓글 신규 gesiReplInsert() 파라미터 출력 :"+map);
+		
+		String memSid = String.valueOf(request.getSession().getAttribute(USER_SESSION_KEY));
+		map.put("memSid", memSid);
 		
 		try
 		{

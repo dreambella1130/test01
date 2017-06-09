@@ -9,15 +9,65 @@
 <title>게시판 상세내용</title>
 <!-- Jquery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<link rel="stylesheet" href="<c:url value='resources/css/boardDetailCSS.css'/>">
-
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="<c:url value='resources/js/boardjs.js'/>"></script>
 
+<script type="text/javascript" src="<c:url value='resources/js/boardjs.js'/>"></script>
+<link rel="stylesheet" href="<c:url value='resources/css/boardDetailCSS.css'/>">
+
+<script type="text/javascript">
+
+	window.onscroll = function() {scrollFunction()};
+	
+	function scrollFunction()
+	{
+	    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20)
+	    {
+	        document.getElementById("goUpBtn").style.display = "block";
+	    } 
+	    else 
+	    {
+	        document.getElementById("goUpBtn").style.display = "none";
+	    }
+	}
+	
+	// When the user clicks on the button, scroll to the top of the document
+	function topFunction() 
+	{
+	    document.body.scrollTop = 0; // For Chrome, Safari and Opera 
+	    document.documentElement.scrollTop = 0; // For IE and Firefox
+	}
+
+
+
+</script>
+<style type="text/css">
+	#goUpBtn
+	{
+	    display: none; /* Hidden by default */
+	    position: fixed; /* Fixed/sticky position */
+	    bottom: 20px; /* Place the button at the bottom of the page */
+	    right: 30px; /* Place the button 30px from the right */
+	    z-index: 99; /* Make sure it does not overlap */
+	    border: none; /* Remove borders */
+	    outline: none; /* Remove outline */
+	    background-color: red; /* Set a background color */
+	    color: white; /* Text color */
+	    cursor: pointer; /* Add a mouse pointer on hover */
+	    padding: 15px; /* Some padding */
+	    border-radius: 10px; /* Rounded corners */
+	}
+	
+	#goUpBtn:hover 
+	{
+	    background-color: #555; /* Add a dark-grey background on hover */
+	}
+</style>
 </head>
 <body>
+
 <form method="post" id="submitForm">
+	<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 	<input type="hidden" id="bdSid" name="bdSid" value="${bdDetail.BD_SID }"/>
 	<input type="hidden" id="bd_grp_sid" name="bd_grp_sid" value="${bdDetail.BD_GRP_SID }">
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV" value="${bdDetail.BD_GRP_LV }">
@@ -32,21 +82,40 @@
 </form>
 
 <div class="container">
-	<div class="page-header">
-		<h1>게시판 상세내용</h1>
+
+<button onclick="topFunction()" id="goUpBtn" title="Go to top">Top</button>
+
+	<div class="page-header row">
+		<div class="col-sm-3">
+			<h1>게시판 상세내용</h1>
+		</div>
+		<div class="col-sm-6"></div>
+		<div class="col-sm-3">
+			<c:choose>
+				<c:when test="${sessionScope.memNick == null}">
+					<c:import url="loginModal.jsp"></c:import>
+				</c:when>
+				<c:otherwise>
+					<div class="txtRight">
+						<span class="userNick"><c:out value="${sessionScope.memNick}"/> 님 </span>
+						<button type="button" class="btn btn-primary" onclick="location.href='/prj01/logout'">로그아웃</button>
+					</div>
+				</c:otherwise>
+			</c:choose>
+		</div>
 	</div>
 	
 	<!-- head 글쓰기, 답글 등 버튼 위치 -->
 	<div class="row">
 		<div class="col-xs-5">
-			<button type="button" class="btn btn-default" onclick="location.href='/prj01/gobdwrite'">
+			<button type="button" class="btn btn-default" onclick=${sessionScope.memSid == null ? 'loginModal()':'location.href="/prj01/gobdwrite"'}>
 				<span class="glyphicon glyphicon-pencil"></span> 글쓰기
 			</button>
-			<button type="button" class="btn btn-default" onclick="goBoardReple();">답글</button>
-			
-			<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
-			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">삭제</button>
-			
+			<button type="button" class="btn btn-default" onclick=${sessionScope.memSid == null ? 'loginModal()':'goBoardReple()'}>답글</button>
+			<c:if test="${sessionScope.memSid == bdDetail.MEM_SID}">
+				<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">삭제</button>
+			</c:if>
 		</div>
 		<div class="col-xs-4"></div>
 		<div class="col-xs-3 flotR">
@@ -123,22 +192,39 @@
 		</c:if>
 		<dl>
 			<dt class="replMargin">
+				<c:if test="${replList.REPL_DEPT != 0 }">
+					<span class='replMargin' style="padding-left: ${replList.REPL_DEPT != 0 ? (replList.REPL_DEPT*15) : ''}px;">┗ </span>
+				</c:if>
 				${replList.MEM_NICK } <span class="replTime">${replList.REPL_REGI }</span>
 				<span class="flotR showRepl" id="btn_${replList.REPL_SID }">
-					<a href="javascript:void(0);"
-						onclick="repleEdit(${replList.REPL_SID }, 'replReNew', ${replList.REPL_GRP }, ${replList.REPL_LV }, ${replList.REPL_DEPT });">답글</a> |
-					<a href="javascript:void(0);" onclick="repleEdit(${replList.REPL_SID }, 'repleEdit');"> 수정</a> | 
-					<a href="javascript:void(0);" onclick="repleDelete(${replList.REPL_SID })"> 삭제 </a> 
+				<c:choose>
+					<c:when test="${sessionScope.memSid != null && (sessionScope.memSid != replList.MEM_SID)}">
+						<a href="javascript:void(0);"
+						onclick="repleEdit(${replList.REPL_SID} , 'replReNew', ${replList.REPL_GRP }, ${replList.REPL_LV }, ${replList.REPL_DEPT})">답글</a> | 
+					</c:when>
+					<c:when test="${sessionScope.memSid == null}">
+						<a href="javascript:void(0);" onclick='loginModal();'>답글</a>
+					</c:when>
+				</c:choose>
+					
+				<c:if test="${sessionScope.memSid == replList.MEM_SID}">
+					<a href="javascript:void(0);" onclick="repleEdit(${replList.REPL_SID }, 'repleEdit');"> 수정</a>
+					| <a href="javascript:void(0);" onclick="repleDelete(${replList.REPL_SID })"> 삭제 </a>
+				</c:if>
 				</span>
 			</dt>
-			<dd class="replMargin showRepl" id="origin_${replList.REPL_SID }">${replList.REPL_CONT }</dd>
+			<dd class="replMargin showRepl" id="origin_${replList.REPL_SID }"
+				style="padding-left: ${replList.REPL_DEPT != 0 ? (replList.REPL_DEPT == 1) ? '35' : ((replList.REPL_DEPT*7)+35) : ''}px;">
+				${replList.REPL_CONT }
+			</dd>
 			
 		<!-- 댓글 수정 폼 ----------------------------------------------------------------------------------->
 	
 			<dd class="replMargin hiddenRepl" style="display: none;" id="edit_${replList.REPL_SID }">
 				<div class="form-group row">
-					<div class="col-sm-11">
-						<textarea rows="3" class="form-control replTxtLength" id="editTxt_${replList.REPL_SID }">${fn:replace(fn:replace(replList.REPL_CONT, '&nbsp; ', ''),'<br>', enter) }</textarea>
+					<div class="col-sm-11" style="padding-left: ${replList.REPL_DEPT != 0 ? (replList.REPL_DEPT == 1) ? '35' : ((replList.REPL_DEPT*7)+35) : ''}px;">
+						<%-- <textarea rows="3" class="form-control replTxtLength" id="editTxt_${replList.REPL_SID }">${fn:replace(fn:replace(replList.REPL_CONT, '&nbsp; ', ''),'<br>', enter) }</textarea> --%>
+						<textarea rows="3" class="form-control replTxtLength" id="editTxt_${replList.REPL_SID }">${fn:replace(replList.REPL_CONT,'<br>', enter) }</textarea>
 					</div>
 					<div class="col-sm-1 btn-group">
 						<button type="button" class="btn btn-primary gesiReplBtn">등록</button>
@@ -157,7 +243,7 @@
 		
 			<dd class="replMargin hiddenRepl" style="display: none;" id="replRepl_${replList.REPL_SID }">
 				<div class="form-group row">
-					<div class="col-sm-11">
+					<div class="col-sm-11" style="padding-left: ${replList.REPL_DEPT != 0 ? (replList.REPL_DEPT == 1) ? '35' : ((replList.REPL_DEPT*7)+35) : ''}px;">
 						<textarea rows="3" class="form-control replTxtLength" id="replReNew_${replList.REPL_SID }" placeholder="댓글을 입력해주세요"></textarea>
 					</div>
 					<div class="col-sm-1 btn-group">
@@ -182,10 +268,10 @@
 	<div class="form-horizontal">
 		<div class="form-group row">
 			<div class="col-sm-11">
-				<textarea rows="3" class="form-control replTxtLength" id="newReplCon" placeholder="댓글을 입력해주세요"></textarea>
+				<textarea rows="3" class="form-control replTxtLength" id="newReplCon" onfocus="${sessionScope.memNick == null ? 'loginModal()' : '' }" placeholder="댓글을 입력해주세요" ></textarea>
 			</div>
 			<div class="col-sm-1">
-				<p class="replBtn gesiReplBtn">등록</p>
+				<p class="${sessionScope.memNick == null ? 'replBtn' : 'replBtn gesiReplBtn' }" onclick=${sessionScope.memNick == null ? 'loginModal()':''}>등록</p>
 			</div>
 		</div>
 		
@@ -201,14 +287,14 @@
 	<!-- footer 글쓰기 등 버튼  ---------------------------------------------------------------------------->
 	<div class="row">
 		<div class="col-xs-5">
-			<button type="button" class="btn btn-default" onclick="location.href='/prj01/boardwrite'">
+			<button type="button" class="btn btn-default" onclick=${sessionScope.memSid == null ? 'loginModal()':'location.href="/prj01/gobdwrite"'}>
 				<span class="glyphicon glyphicon-pencil"></span> 글쓰기
 			</button>
-			<button type="button" class="btn btn-default" onclick="goBoardReple();">답글</button>
-			
-			<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
-			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">삭제</button>
-			
+			<button type="button" class="btn btn-default" onclick=${sessionScope.memSid == null ? 'loginModal()':'goBoardReple()'}>답글</button>
+			<c:if test="${sessionScope.memSid == bdDetail.MEM_SID}">
+				<button type="button" class="btn btn-default" onclick="goBDEdit();">수정</button>
+				<button type="button" class="btn btn-default" data-toggle="modal" data-target="#myModal">삭제</button>
+			</c:if>
 		</div>
 		<div class="col-xs-4"></div>
 		<div class="col-xs-3 flotR">
@@ -366,7 +452,7 @@
     </div>
   </div>
 </div>
-	
+
 </div>
 
 </body>

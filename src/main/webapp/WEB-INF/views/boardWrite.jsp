@@ -110,6 +110,7 @@
 	</div>
 	<br /><br />
 	<form class="form-group" id="bdInsertForm" method="post">
+		<input type="hidden" name="${_csrdf.parameterName}" value="${_csrf.token}"/>
 		<input type="hidden" name="bd_grp_sid" value="${bdReple.bd_grp_sid }"/>
 		<input type="hidden" name="bd_grp_LV" value="${bdReple.bd_grp_LV }"/>
 		<input type="hidden" name="bd_grp_dep" value="${bdReple.bd_grp_dep }"/>
@@ -118,6 +119,9 @@
 		<div class="inputMargin">
 			<input class="form-control" type="text" id="bdTitle" name="bdTitle" placeholder="제목을 입력해 주세요" >
 		</div>
+		
+		<c:import url="fileUpload.jsp"/>
+		
 		<div class="inputMargin">
 			<textarea class="form-control" rows="20" id="bdContent" name="bdContent" style='width:100%; min-width:260px; height:30em; display:none;'></textarea>
 		</div>

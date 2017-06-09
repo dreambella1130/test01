@@ -5,6 +5,20 @@
   
 <mapper namespace="com.test.prj01.dao.IBoardMapper">
 
+	<!-- 로그인 -->
+	<select id = "selectMemberLogin" parameterType="java.util.Map" resultType="java.util.Map">
+		SELECT MEM_SID
+			, MEM_ID
+			, MEM_PW
+			, MEM_NICK
+			, MEM_REGI
+			, MEM_UPDT
+			, MEM_BL
+			, MEM_GRADE
+		FROM MEM_INFO
+		WHERE MEM_ID = #{mem_id} AND MEM_PW = #{mem_pw}
+	</select>
+
 	<!-- 전체 게시물 수 구하기 -->
   	<select id="selectTotalBDCnt" parameterType="java.util.Map" resultType="int">
   	
@@ -17,15 +31,15 @@
 				AND UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
 			]]>
 			</when>
-			<when test="searchKey == 'bdTitle' and searchValue != null">
+			<when test="searchKey == 'bdCont' and searchValue != null">
 			<![CDATA[
 				AND UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
 			]]>
 			</when>
-			<when test="searchKey == 'all' and searchValue != null">
+			<when test="searchKey == 'bdall' and searchValue != null">
 			<![CDATA[
-				AND ( UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%'
-				OR UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%' )
+				AND ( UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
+				OR UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%' )
 			]]>
 			</when>
 		</choose>
@@ -64,15 +78,15 @@
 					AND UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
 				]]>
 				</when>
-				<when test="searchKey == 'bdTitle' and searchValue != null">
+				<when test="searchKey == 'bdCont' and searchValue != null">
 				<![CDATA[
 					AND UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
 				]]>
 				</when>
-				<when test="searchKey == 'all' and searchValue != null">
+				<when test="searchKey == 'bdall' and searchValue != null">
 				<![CDATA[
-					AND ( UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%'
-					OR UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) '%'||UPPER(#{searchValue})||'%' )
+					AND ( UPPER(REGEXP_REPLACE(BD_TITLE,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%'
+					OR UPPER(REGEXP_REPLACE(BD_CONT,'<[^>]*>|\&([^;])*;', '')) LIKE '%'||UPPER(#{searchValue})||'%' )
 				]]>
 				</when>
 			</choose>
@@ -83,6 +97,10 @@
   				AND NUM BETWEEN #{start} AND #{end}
   			]]>
   			</if>
+  			
+  			<if test="searchKey == 'bdUser' and searchValue != null">
+					AND UPPER(MEM_NICK) LIKE '%'||UPPER(#{searchValue})||'%'
+			</if>
   		</where>
   	</select>
   	
@@ -200,6 +218,7 @@
         <result property="BD_GRP_SID" column="BD_GRP_SID" />
         <result property="BD_GRP_LV" column="BD_GRP_LV" />
         <result property="BD_GRP_DEP" column="BD_GRP_DEP" />
+        <result property="MEM_SID" column="MEM_SID"/>
         <result property="MEM_NICK" column="MEM_NICK" />
         <result property="BD_CLI" column="BD_CLI"/>
         <result property="BD_LIKE" column="BD_LIKE"/>
@@ -216,6 +235,7 @@
 			, BD_GRP_SID
 			, BD_GRP_LV
 			, BD_GRP_DEP
+			, MEM_SID
 		    , (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
 		    , BD_CLI
 		    , BD_LIKE
@@ -287,7 +307,7 @@
 	  			, 'N'
 	  			, 0
 	  			, 0
-	  			, 1 )
+	  			, #{memSid} )
   	</insert>
   	
   	<!-- 답글 쓰기 -->
@@ -321,7 +341,8 @@
 			, 'N'
 			, 0
 			, 0
-			, 1 )
+			, #{memSid} )
+			
   	</insert>
   	
   	<!-- 답글 INSERT 전에 그룹 글번호 순서(BD_GRP_LV) +1 해주기 -->
@@ -429,7 +450,7 @@
 			, 'N'
 			, 0
 			, #{bdSid}
-			, 1 )
+			, #{memSid} )
   	</insert>
   	
   	<!-- 댓글의 답글 등록하기 -->
@@ -457,7 +478,7 @@
 			, 'N'
 			, 0
 			, #{bdSid}
-			, 1 )
+			, #{memSid} )
   	</insert>
   	
   	<!-- 댓글의 답글 등록을 위해 댓글 그룹 순서(REPL_LV) 재설정 하기 -->

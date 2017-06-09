@@ -83,4 +83,7 @@ public interface IBoardMapper
 	// 댓글의 답글 등록하기
 	public void insertGesiReplReNew(Map<String, Object> map);
 	
+	// 로그인
+	public Map<String, Object> selectMemberLogin(Map<String, Object> map);
+	
 }

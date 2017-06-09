@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,9 +12,37 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="<c:url value='resources/js/boardjs.js'/>"></script>
 <link rel="stylesheet" href="<c:url value='resources/css/boardListCSS.css'/>">
+
+<script type="text/javascript">
+	
+	$(document).ready(function()
+	{
+		var numPer = "";		//-- 한페이지 목록 보기 갯수
+		var searchKey = "";		//-- 검색 항목
+		var searchValue = "";	//-- 검색 어
+
+		numPer = "${searchData.numPer }";
+		searchKey = "${searchData.searchKey }";
+		searchValue = "${searchData.searchValue }";
+		
+		if(numPer != "" || numPer != null)
+		{
+			$("#num_per option[value="+numPer+"]").attr("selected", "selected");
+		}
+		if(searchValue != "" || searchValue != null)
+		{
+			$("#searchOption option[value='"+searchKey+"']").attr("selected", "selected");
+			$("#searchTxt").val(searchValue);
+			
+		}
+		
+	});
+	
+</script>
 </head>
 <body>
 <form method="post" id="submitForm">
+	<input type="hidden" name="${_csrdf.parameterName}" value="${_csrf.token}"/>
 	<input type="hidden" id="bdSid" name="bdSid"/>
 	<input type="hidden" id="bd_grp_sid" name="bd_grp_sid">
 	<input type="hidden" id="bd_grp_LV" name="bd_grp_LV">
@@ -23,19 +52,44 @@
 	<input type="hidden" id="numPer" name="numPer" value=${searchData.numPer }>
 </form>
 <div class="container">
-	<div class="page-header">
-		<h1>게시판 목록</h1>
+	<div class="page-header row">
+		<div class="col-sm-3">
+			<h1>
+				<a href="/prj01/boardlist">게시판 목록</a>
+			</h1>
+		</div>
+		<div class="col-sm-6"></div>
+		<div class="col-sm-3">
+			<c:choose>
+				<c:when test="${sessionScope.memNick == null}">
+					<c:import url="loginModal.jsp"></c:import>
+				</c:when>
+				<c:otherwise>
+					<div class="txtRight">
+						<span class="userNick"><c:out value="${sessionScope.memNick}"/> 님 </span>
+						<button type="button" class="btn btn-primary" onclick="location.href='/prj01/logout'">로그아웃</button>
+					</div>
+				</c:otherwise>
+			</c:choose>
+		</div>
 	</div>
 	
 	<div class="row">
 		<div class="col-md-3">
-			<button type="button" class="btn btn-default" onclick="location.href='/prj01/gobdwrite'">
+			<button type="button" class="btn btn-default" onclick=${sessionScope.memSid == null ? 'loginModal()':'location.href="/prj01/gobdwrite"'}>
 				<span class="glyphicon glyphicon-pencil"></span> 글쓰기
 			</button>
 		</div>
-		<div class="col-md-8"></div>
+		<div class="col-md-7"></div>
+		<div class="col-md-2">
+			<select id="num_per" class="form-control">
+				<option value="2">목록 2개</option>
+				<option value="5">목록 5개</option>
+				<option value="10" selected="selected">목록 10개</option>
+			</select>
+		</div>
 		
-		<table class="table table-hover">
+		<table class="table table-hover titleMargin">
 			<thead>
 				<tr class="txCenter">
 					<th style="width: 5%"></th>
@@ -47,10 +101,11 @@
 				</tr>
 			</thead>
 			<tbody>
+				<c:if test="${fn:length(list) == 0}"> <tr><td colspan="6" class="txCenter">등록된 게시글이 없습니다. </td></tr></c:if>
 				<c:forEach var="list" items="${list }">
 					<tr>
 						<td class="txCenter">${list.BD_SID }</td>
-						<td>
+						<td style="padding-left: ${list.BD_GRP_DEP != 0 ? (list.BD_GRP_DEP*3) : ''}%;">
 							<c:choose>
 								<c:when test="${list.BD_BLCK == 'Y' }">
 									신고된 게시글입니다.
@@ -69,22 +124,36 @@
 				</c:forEach>
 			</tbody>
 		</table>
+		<hr />
 		<!-- 페이징 처리 부분 ----------------------------------------------------------------------------------->
 		<div class="row">
 			<div class="col-sm-2"></div>
 			<div class="col-sm-8">
 				<ul class="pager">
-					<li class="previous"><a href="#">Previous</a></li>
 					<li>${searchData.pageIndexList }</li>
-				<li class="next"><a href="#">Next</a></li>
-			</ul>
+				</ul>
 			</div>
 			<div class="col-sm-2"></div>
 		</div>
 		
 		<!-- 검색 부분 ------------------------------------------------------------------------------------------->
 		<div class="row">
-		
+			<div class="col-sm-2"></div>
+			<div class="col-sm-2">
+				<select class="form-control" id="searchOption">
+					<option value="bdall">제목+내용</option>
+					<option value="bdTitle">제목</option>
+					<option value="bdCont">내용</option>
+					<option value="bdUser">작성자</option>
+				</select>
+			</div>
+			<div class="col-sm-5">
+				<input type="text" class="form-control" id="searchTxt" placeholder="검색어를 입력하세요"/>
+			</div>
+			<div class="col-sm-1">
+				<button type="button" class="btn btn-primary" id="searchBtn">검색</button>
+			</div>
+			<div class="col-sm-2"></div>
 		
 		</div>
 		

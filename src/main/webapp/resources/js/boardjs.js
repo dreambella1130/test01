@@ -65,7 +65,7 @@ $(document).ready(function()
 		
 		txtChk = $("#"+newOldChk).val().trim();
 		
-		alert("*****"+newOldChk.substring(0,newOldChk.indexOf('_')) + "*****");
+		//alert("*****"+newOldChk.substring(0,newOldChk.indexOf('_')) + "*****");
 		
 		if(txtChk == null || txtChk == "")
 		{
@@ -84,19 +84,19 @@ $(document).ready(function()
 		// 신규 댓글 작성
 		if(newOldChk == 'newReplCon')
 		{
-			alert("댓글 신규등록 :"+txtChk+"*******");
+			//alert("댓글 신규등록 :"+txtChk+"*******");
 			$("#bd_gesi_repl_Chk").val("NewRepl");
 			$("#submitForm").attr("action", "/prj01/goinsertgesirepl");
 		}
 		else if(newOldChk.substring(0, newOldChk.indexOf('_')) == "replReNew")
 		{
-			alert("댓글 답변 등록 :"+txtChk+"*******");
+			//alert("댓글 답변 등록 :"+txtChk+"*******");
 			$("#bd_gesi_repl_Chk").val("replReNew");
 			$("#submitForm").attr("action", "/prj01/goinsertgesirepl");
 		}
 		else if(newOldChk.substring(0, newOldChk.indexOf('_')) == "editTxt")
 		{
-			alert("댓글 수정 번호:"+newOldChk.substring(newOldChk.indexOf('_')+1)+"*******");
+			//alert("댓글 수정 번호:"+newOldChk.substring(newOldChk.indexOf('_')+1)+"*******");
 			
 			// 댓글 수정 체크를 위해 값 넣어주기
 			$("#bd_gesi_repl_Chk").val("updateRepl");
@@ -108,6 +108,102 @@ $(document).ready(function()
 		$("#submitForm").submit();
 		
 	}); // end $(".gesiReplBtn").click()
+	
+	//  목록에서 검색 버튼 눌렀을 때 - 호출 : boardList.jsp
+	$("#searchBtn").click(function()
+	{
+		//alert("***** 검색버튼 클릭 이벤트 ");
+		//alert("***"+$("#searchOption option:selected").val());
+		
+		var txt = $("#searchTxt").val().trim();
+		
+		if(txt == "" || txt == null)
+		{
+			alert("검색어를 입력하세요.");
+			$("#searchTxt").val(txt);
+			$("#searchTxt").focus();
+			
+			return;
+		}
+		
+		
+		$("#searchKey").val($("#searchOption option:selected").val());
+		$("#searchValue").val(txt);
+		$("#submitForm").attr("action", "/prj01/boardlist");
+		$("#submitForm").submit();
+		
+	});	// end $("#searchBtn").click()
+	
+	// 게시판 목록에서 목록 출력 갯수 변경 시 - 호출 : boardList.jsp
+	$("#num_per").change(function()
+	{
+		//alert("목록 갯수 변경 이벤트");
+		
+		$("#numPer").val($("#num_per option:selected").val());
+		$("#submitForm").attr("action", "/prj01/boardlist");
+		$("#submitForm").submit();
+	});
+	
+	// 로그인 모달 파업 내 로그인 버튼 클릭 이벤트 - 호출 : boardList.jsp
+	$("#loginChk").click(function()
+	{
+		//alert("로그인 체크 호출");
+		
+		var usrname = $("#usrname").val().trim();
+		var pwd = $("#psw").val().trim();
+		
+		if(usrname == null || usrname == "")
+		{
+			alert("아이디(이메일 주소)를 입력해주세요");
+			$("#usrname").val(usrname);
+			$("#usrname").focus();
+			
+			return;
+		}
+		
+		if(pwd == null || pwd == "")
+		{
+			alert("비밀번호를 입력해주세요");
+			$("#psw").val(pwd);
+			$("#psw").focus();
+			
+			return;
+		}
+		
+		$.ajax(
+	    {    
+	        type:"POST",  
+	        url: "/prj01/login",      
+	        data: {mem_id : $("#usrname").val().trim(), mem_pw : $("#psw").val()},
+	        success:function(args)
+	        {
+	        	if(args.MEM_NICK == null || args.MEM_NICK == "")
+	        	{
+	        		//alert("args.MEM_NICK :"+args.MEM_NICK);
+	        		$("#loginError").show();
+	        		$("#psw").val("");
+	        		$("#usrname").focus();
+	        	}
+	        	else
+	        	{
+	        		var currentURL = "";
+	        		currentURL = $(location).attr('pathname');
+	        		
+	        		//alert("*** 현재 url 확인 :"+currentURL+"****");
+	        		$("#submitForm").attr("action", currentURL);
+	        		$("#submitForm").submit();
+	        	}
+	        	
+	        },   
+	        error:function(request,status,error)
+	        {  
+	        	alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+
+	        }
+	        
+	    }); // -- end $.ajax()
+		
+	});	//-- end $("#loginChk").click()
 	
 	
 });
@@ -129,11 +225,18 @@ function goSelect(bdsid, bd_grp_sid, bd_grp_LV)
 //페이지 이동 함수	- 호출 : boardList.jsp
 function listPage(pageNum)
 {
-	alert("*******"+pageNum+"페이지로 이동");
+	//alert("*******"+pageNum+"페이지로 이동");
 	
 	$("#pageNum").val(pageNum);
 	$("#submitForm").attr("action", '/prj01/boardlist');
 	$("#submitForm").submit();
+}
+
+// 로그인 없이 글쓰기 버튼 눌렀을 때 로그인 모달 팝업 호출 - 호출 : boardList.jsp
+function loginModal()
+{
+	//alert("로그인 모달 팝업 호출");
+	$("#loginModal").modal();
 }
 
 

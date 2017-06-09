@@ -7,7 +7,9 @@
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<!-- 스프링의 환경설정 파일인 root-context.xml을 가장 먼저 참조한다-->
-		<param-value>/WEB-INF/spring/root-context.xml</param-value>
+		<param-value>
+			/WEB-INF/spring/*.xml
+		</param-value>
 	</context-param>
 	
 	<!-- Creates the Spring Container shared by all Servlets and Filters -->
@@ -68,5 +70,16 @@
 		<location>/WEB-INF/error/errorPage.jsp</location>
 	</error-page>
 	
-
+	<!-- springSecurity 설정 -->
+	<!-- 
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+	 -->
+	 
 </web-app>

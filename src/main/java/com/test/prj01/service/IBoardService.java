@@ -47,4 +47,7 @@ public interface IBoardService
 	// 댓글의 답글 등록하기
 	public void insertGesiReplre(Map<String, Object> map) throws Exception;
 	
+	// 로그인
+	public Map<String, Object> selectMemLogin(Map<String, Object> map) throws Exception;
+	
 }

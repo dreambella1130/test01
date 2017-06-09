@@ -1,5 +1,17 @@
 @CHARSET "UTF-8";
 
+.txtRight
+{
+	text-align: right;
+}
+
+.userNick
+{
+	font-weight: bold;
+	margin-right: 10px;
+	text-decoration: underline;
+	font-size: 15pt;
+}
 .margin
 {
 	margin-left: 15px;
@@ -81,4 +93,6 @@
 }
 
 .countColor { font-weight: bold; color: #d82746; text-align: right; };
+
+
 
