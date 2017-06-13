@@ -86,23 +86,12 @@
 <button onclick="topFunction()" id="goUpBtn" title="Go to top">Top</button>
 
 	<div class="page-header row">
+		<div> <c:import url="headbar.jsp"/> </div>
 		<div class="col-sm-3">
 			<h1>게시판 상세내용</h1>
 		</div>
 		<div class="col-sm-6"></div>
-		<div class="col-sm-3">
-			<c:choose>
-				<c:when test="${sessionScope.memNick == null}">
-					<c:import url="loginModal.jsp"></c:import>
-				</c:when>
-				<c:otherwise>
-					<div class="txtRight">
-						<span class="userNick"><c:out value="${sessionScope.memNick}"/> 님 </span>
-						<button type="button" class="btn btn-primary" onclick="location.href='/prj01/logout'">로그아웃</button>
-					</div>
-				</c:otherwise>
-			</c:choose>
-		</div>
+		<div class="col-sm-3"></div>
 	</div>
 	
 	<!-- head 글쓰기, 답글 등 버튼 위치 -->

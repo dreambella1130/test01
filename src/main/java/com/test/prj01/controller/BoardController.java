@@ -1,5 +1,11 @@
 package com.test.prj01.controller;
 
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.RSAPublicKeySpec;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,11 +81,51 @@ public class BoardController
 		return "redirect:/boardlist";
 	}
 	
-	// 회원가입
-	@RequestMapping(value="/costomCheck")
-	public String loginForm(Model model, String actionKey)
+	// 회원가입 폼
+	@RequestMapping(value="/customCheck")
+	public String loginForm(Model model, HttpServletRequest request)
 	{
+		try
+		{
+			// RSA 공개키/개인키를 생성한다.
+			KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
+			generator.initialize(2048);	// Key_Size
+			
+			KeyPair keyPair = generator.genKeyPair();
+			PublicKey publicKey = keyPair.getPublic();		// 공개키
+			PrivateKey privateKey = keyPair.getPrivate();	// 개인키
+			
+			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+			
+			HttpSession session = request.getSession();
+			session.setAttribute("_rsaPrivateKey_", privateKey);	//세션에 RSA 개인키를 세션에 저장한다.
+			
+			// 공개키를 문자열로 변환하여 JavaScript RSA 라이브러리 넘겨준다.
+			RSAPublicKeySpec publicSpec = (RSAPublicKeySpec)keyFactory.getKeySpec(publicKey, RSAPublicKeySpec.class);
+			
+			String publicKeyModulus = publicSpec.getModulus().toString(16);
+			String publicKeyExponent = publicSpec.getPublicExponent().toString(16);
+			
+			model.addAttribute("publicKeyModulus", publicKeyModulus);
+			model.addAttribute("publicKeyExponent", publicKeyExponent);
+			
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		model.addAttribute("actType", "signUp");
+		
+		
+		return "/customForm";
+	}
 	
+	// 아이디/비밀번호 찾기 폼
+	@RequestMapping(value="/findpw")
+	public String findPW(Model model)
+	{
+		
+		model.addAttribute("actType", "findInfo");
 		return "/customForm";
 	}
 	

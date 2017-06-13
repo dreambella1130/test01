@@ -5,7 +5,7 @@
 <html>
 <head>
 <meta charset=UTF-8">
-<title>게시판 목록</title>
+<title>자유게시판</title>
 <!-- Jquery -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
@@ -53,25 +53,12 @@
 </form>
 <div class="container">
 	<div class="page-header row">
+		<div> <c:import url="headbar.jsp"/> </div>
 		<div class="col-sm-3">
-			<h1>
-				<a href="/prj01/boardlist">게시판 목록</a>
-			</h1>
+			<h1> 자유게시판 </h1>
 		</div>
 		<div class="col-sm-6"></div>
-		<div class="col-sm-3">
-			<c:choose>
-				<c:when test="${sessionScope.memNick == null}">
-					<c:import url="loginModal.jsp"></c:import>
-				</c:when>
-				<c:otherwise>
-					<div class="txtRight">
-						<span class="userNick"><c:out value="${sessionScope.memNick}"/> 님 </span>
-						<button type="button" class="btn btn-primary" onclick="location.href='/prj01/logout'">로그아웃</button>
-					</div>
-				</c:otherwise>
-			</c:choose>
-		</div>
+		<div class="col-sm-3"></div>
 	</div>
 	
 	<div class="row">
