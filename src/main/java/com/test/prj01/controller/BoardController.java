@@ -81,6 +81,29 @@ public class BoardController
 		return "redirect:/boardlist";
 	}
 	
+	// 닉네임 중복 체크
+	@RequestMapping(value="/email_nick_check")
+	@ResponseBody
+	public String nickChk(@RequestParam Map<String, String> map)
+	{
+		String ajaxResult = "";
+		
+		logger.info("***** 파라미터 출력 :"+map+"********");
+		
+		try
+		{
+			ajaxResult = service.selectEmailNick(map);
+			
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		
+		logger.info("***** ajaxResult 출력 :"+ajaxResult+"********");
+		
+		return ajaxResult;
+	}
+	
 	// 회원가입 폼
 	@RequestMapping(value="/customCheck")
 	public String loginForm(Model model, HttpServletRequest request)

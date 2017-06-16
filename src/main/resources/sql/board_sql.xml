@@ -5,6 +5,20 @@
   
 <mapper namespace="com.test.prj01.dao.IBoardMapper">
 
+	<!-- 닉네임 / 중복 확인 -->
+	<select id="selectEmailNick" parameterType="java.util.Map" resultType="String" >
+		SELECT COUNT(*) AS COUNT
+		FROM MEM_INFO
+		<where>
+			<if test="userNick != '' and userNick != null">
+				AND MEM_NICK = #{userNick, jdbcType=VARCHAR}
+			</if>
+			<if test="userEmail != '' and userEmail != null">
+				AND MEM_ID = #{userEmail, jdbcType=VARCHAR}
+			</if>
+		</where>
+	</select>
+	
 	<!-- 로그인 -->
 	<select id = "selectMemberLogin" parameterType="java.util.Map" resultType="java.util.Map">
 		SELECT MEM_SID
@@ -16,7 +30,7 @@
 			, MEM_BL
 			, MEM_GRADE
 		FROM MEM_INFO
-		WHERE MEM_ID = #{mem_id} AND MEM_PW = #{mem_pw}
+		WHERE MEM_ID = #{mem_id, jdbcType=VARCHAR} AND MEM_PW = #{mem_pw, jdbcType=VARCHAR}
 	</select>
 
 	<!-- 전체 게시물 수 구하기 -->
@@ -99,7 +113,7 @@
   			</if>
   			
   			<if test="searchKey == 'bdUser' and searchValue != null">
-					AND UPPER(MEM_NICK) LIKE '%'||UPPER(#{searchValue})||'%'
+				AND UPPER(MEM_NICK) LIKE '%'||UPPER(#{searchValue})||'%'
 			</if>
   		</where>
   	</select>

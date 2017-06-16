@@ -187,11 +187,21 @@ $(document).ready(function()
 	        	else
 	        	{
 	        		var currentURL = "";
-	        		currentURL = $(location).attr('pathname');
 	        		
 	        		//alert("*** 현재 url 확인 :"+currentURL+"****");
-	        		$("#submitForm").attr("action", currentURL);
-	        		$("#submitForm").submit();
+	        		
+	        		if($(location).attr('pathname') == "/prj01/customCheck")
+	        		{
+	        			currentURL = "/prj01/boardlist";
+	        		}
+	        		else
+	        		{
+	        			currentURL = $(location).attr('pathname');
+		        		
+		        		$("#submitForm").attr("action", currentURL);
+		        		$("#submitForm").submit();
+	        		}
+	        		
 	        	}
 	        	
 	        },   

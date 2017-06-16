@@ -86,4 +86,7 @@ public interface IBoardMapper
 	// 로그인
 	public Map<String, Object> selectMemberLogin(Map<String, Object> map);
 	
+	// 이메일 / 닉네임 중복 조회
+	public String selectEmailNick(Map<String, String> map);
+	
 }

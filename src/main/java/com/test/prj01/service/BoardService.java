@@ -357,6 +357,21 @@ public class BoardService implements IBoardService
 		
 		return result;
 	}
+
+	// 이메일 / 닉네임 중복 조회
+	@Override
+	public String selectEmailNick(Map<String, String> map) throws Exception
+	{
+		logger.info("***** 컨트롤러에서 넘어온 파라미터 출력 :"+map);
+		
+		String result = "";
+		
+		result = dao.selectEmailNick(map);
+		
+		logger.info("***** DB 조회 결과 출력 :"+result);
+		
+		return result;
+	}
 	
 	
 	

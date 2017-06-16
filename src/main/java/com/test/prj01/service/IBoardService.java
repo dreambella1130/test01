@@ -50,4 +50,7 @@ public interface IBoardService
 	// 로그인
 	public Map<String, Object> selectMemLogin(Map<String, Object> map) throws Exception;
 	
+	// 이메일 / 닉네임 중복 조회
+	public String selectEmailNick(Map<String, String> map) throws Exception;
+	
 }
