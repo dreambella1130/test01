@@ -12,6 +12,12 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
+<!-- script 태그에서 가져오는 자바스크립트 파일의 순서에 주의해야한다! 순서가 틀릴경우 자바스크립트 오류가 발생한다. -->
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/jsbn.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/rsa.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/prng4.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/rng.js"></script>
+
 <script type="text/javascript" src="<c:url value='resources/js/boardjs.js'/>"></script>
 <link rel="stylesheet" href="<c:url value='resources/css/boardDetailCSS.css'/>">
 
@@ -79,6 +85,9 @@
 	<input type="hidden" id="bd_gesi_repl_dep" name="bd_gesi_repl_dep"/>
 	<input type="hidden" id="bd_gesi_repl_cont" name="bd_gesi_repl_cont"/>
 	<input type="hidden" id="bd_gesi_repl_Chk" name="bd_gesi_repl_Chk"/>
+	
+	<input type="hidden" id="RSAModulus"/>
+	<input type="hidden" id="RSAExponent"/>
 </form>
 
 <div class="container">

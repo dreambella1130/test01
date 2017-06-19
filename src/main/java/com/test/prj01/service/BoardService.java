@@ -347,6 +347,8 @@ public class BoardService implements IBoardService
 	@Override
 	public Map<String, Object> selectMemLogin(Map<String, Object> map) throws Exception
 	{
+		dao = session.getMapper(IBoardMapper.class);
+		
 		logger.info("***** selectMemLogin 컨트롤러에서 넘어온 파라미터 출력 :"+map);
 		
 		Map<String, Object> result = new HashMap<String, Object>();
@@ -362,6 +364,8 @@ public class BoardService implements IBoardService
 	@Override
 	public String selectEmailNick(Map<String, String> map) throws Exception
 	{
+		dao = session.getMapper(IBoardMapper.class);
+		
 		logger.info("***** 컨트롤러에서 넘어온 파라미터 출력 :"+map);
 		
 		String result = "";

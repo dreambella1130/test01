@@ -10,6 +10,13 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+<!-- script 태그에서 가져오는 자바스크립트 파일의 순서에 주의해야한다! 순서가 틀릴경우 자바스크립트 오류가 발생한다. -->
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/jsbn.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/rsa.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/prng4.js"></script>
+<script type="text/javascript" src="<%=request.getContextPath()%>/resources/rsa/rng.js"></script>
+
 <script type="text/javascript" src="<c:url value='resources/js/boardjs.js'/>"></script>
 <link rel="stylesheet" href="<c:url value='resources/css/boardListCSS.css'/>">
 
@@ -25,11 +32,11 @@
 		searchKey = "${searchData.searchKey }";
 		searchValue = "${searchData.searchValue }";
 		
-		if(numPer != "" || numPer != null)
+		if(numPer != "" && numPer != null)
 		{
 			$("#num_per option[value="+numPer+"]").attr("selected", "selected");
 		}
-		if(searchValue != "" || searchValue != null)
+		if(searchValue != "" && searchValue != null)
 		{
 			$("#searchOption option[value='"+searchKey+"']").attr("selected", "selected");
 			$("#searchTxt").val(searchValue);
@@ -50,6 +57,8 @@
 	<input type="hidden" id="searchValue" name="searchValue" value=${searchData.searchValue }>
 	<input type="hidden" id="pageNum" name="pageNum" value=${searchData.pageNum }>
 	<input type="hidden" id="numPer" name="numPer" value=${searchData.numPer }>
+	<input type="hidden" id="RSAModulus"/>
+	<input type="hidden" id="RSAExponent"/>
 </form>
 <div class="container">
 	<div class="page-header row">

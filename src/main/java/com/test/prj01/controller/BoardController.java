@@ -1,18 +1,11 @@
 package com.test.prj01.controller;
 
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.spec.RSAPublicKeySpec;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
@@ -43,114 +35,6 @@ public class BoardController
 	@Resource(name="myUtil")
 	private MyUtil myUtil;
 	
-	// 로그인 (ajax)
-	@RequestMapping(value="/login")
-	public @ResponseBody Map<String, Object> memberLogin(Model model, @RequestParam Map<String, Object> map)
-	{
-		Map<String, Object> ajaxResult = new HashMap<String, Object>();
-		logger.info("***로그인(/login) 파라미터 출력 : "+map);
-		
-		try
-		{
-			ajaxResult = service.selectMemLogin(map);
-			
-		} catch (Exception e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		logger.info("***** ajaxResult map 출력 :"+ajaxResult);
-		
-		if(ajaxResult != null)
-		{
-			model.addAttribute("memSid", ajaxResult.get("MEM_SID"));
-			model.addAttribute("memNick", ajaxResult.get("MEM_NICK"));
-		}
-		
-		return ajaxResult;
-	}
-	
-	// 로그아웃
-	@RequestMapping(value="/logout")
-	public String logout(SessionStatus session)
-	{
-		// 세션 종료
-		session.setComplete();
-		
-		return "redirect:/boardlist";
-	}
-	
-	// 닉네임 중복 체크
-	@RequestMapping(value="/email_nick_check")
-	@ResponseBody
-	public String nickChk(@RequestParam Map<String, String> map)
-	{
-		String ajaxResult = "";
-		
-		logger.info("***** 파라미터 출력 :"+map+"********");
-		
-		try
-		{
-			ajaxResult = service.selectEmailNick(map);
-			
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		logger.info("***** ajaxResult 출력 :"+ajaxResult+"********");
-		
-		return ajaxResult;
-	}
-	
-	// 회원가입 폼
-	@RequestMapping(value="/customCheck")
-	public String loginForm(Model model, HttpServletRequest request)
-	{
-		try
-		{
-			// RSA 공개키/개인키를 생성한다.
-			KeyPairGenerator generator = KeyPairGenerator.getInstance("RSA");
-			generator.initialize(2048);	// Key_Size
-			
-			KeyPair keyPair = generator.genKeyPair();
-			PublicKey publicKey = keyPair.getPublic();		// 공개키
-			PrivateKey privateKey = keyPair.getPrivate();	// 개인키
-			
-			KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-			
-			HttpSession session = request.getSession();
-			session.setAttribute("_rsaPrivateKey_", privateKey);	//세션에 RSA 개인키를 세션에 저장한다.
-			
-			// 공개키를 문자열로 변환하여 JavaScript RSA 라이브러리 넘겨준다.
-			RSAPublicKeySpec publicSpec = (RSAPublicKeySpec)keyFactory.getKeySpec(publicKey, RSAPublicKeySpec.class);
-			
-			String publicKeyModulus = publicSpec.getModulus().toString(16);
-			String publicKeyExponent = publicSpec.getPublicExponent().toString(16);
-			
-			model.addAttribute("publicKeyModulus", publicKeyModulus);
-			model.addAttribute("publicKeyExponent", publicKeyExponent);
-			
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		
-		model.addAttribute("actType", "signUp");
-		
-		
-		return "/customForm";
-	}
-	
-	// 아이디/비밀번호 찾기 폼
-	@RequestMapping(value="/findpw")
-	public String findPW(Model model)
-	{
-		
-		model.addAttribute("actType", "findInfo");
-		return "/customForm";
-	}
 	
 	// 게시판 전체 목록 가져오기
 	@RequestMapping(value="/boardlist")
@@ -351,8 +235,6 @@ public class BoardController
 	public String boardUpdate(Model model, @RequestParam Map<String, Object> map, RedirectAttributes redirectAttr)
 	{
 		logger.info("게시글 수정(update) 파라미터 출력:"+map);
-		
-		Map<String, Object> bdDetail = null;			// 게시글 상세내용
 		
 		try
 		{

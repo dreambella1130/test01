@@ -149,13 +149,13 @@ $(document).ready(function()
 	{
 		//alert("로그인 체크 호출");
 		
-		var usrname = $("#usrname").val().trim();
+		var usrName = $("#usrname").val().trim();
 		var pwd = $("#psw").val().trim();
 		
-		if(usrname == null || usrname == "")
+		if(usrName == null || usrName == "")
 		{
 			alert("아이디(이메일 주소)를 입력해주세요");
-			$("#usrname").val(usrname);
+			$("#usrname").val(usrName);
 			$("#usrname").focus();
 			
 			return;
@@ -170,14 +170,27 @@ $(document).ready(function()
 			return;
 		}
 		
+		// rsa 암호화
+		var rsa = new RSAKey();
+		rsa.setPublic($('#RSAModulus').val(),$('#RSAExponent').val());
+		
+		usrName = rsa.encrypt(usrName);
+		pwd = rsa.encrypt(pwd);
+		
+		console.log("암호화 usrName :"+usrName);
+		console.log("암호화 pwd :"+pwd);
+		
+		
 		$.ajax(
 	    {    
 	        type:"POST",  
 	        url: "/prj01/login",      
-	        data: {mem_id : $("#usrname").val().trim(), mem_pw : $("#psw").val()},
+	        data: {mem_id : usrName, mem_pw : pwd},
 	        success:function(args)
 	        {
-	        	if(args.MEM_NICK == null || args.MEM_NICK == "")
+	        	//alert("****args.memSid :"+args.MEM_SID+"****");
+	        	
+	        	if(args.MEM_SID == null || args.MEM_SID == "")
 	        	{
 	        		//alert("args.MEM_NICK :"+args.MEM_NICK);
 	        		$("#loginError").show();
@@ -188,22 +201,19 @@ $(document).ready(function()
 	        	{
 	        		var currentURL = "";
 	        		
-	        		//alert("*** 현재 url 확인 :"+currentURL+"****");
+	        		alert("*** 현재 url 확인 :"+$(location).attr('pathname')+"****");
 	        		
 	        		if($(location).attr('pathname') == "/prj01/customCheck")
 	        		{
-	        			currentURL = "/prj01/boardlist";
+	        			$(location).attr("href","/prj01/boardlist");
 	        		}
 	        		else
 	        		{
 	        			currentURL = $(location).attr('pathname');
-		        		
-		        		$("#submitForm").attr("action", currentURL);
+	        			$("#submitForm").attr("action", currentURL);
 		        		$("#submitForm").submit();
 	        		}
-	        		
 	        	}
-	        	
 	        },   
 	        error:function(request,status,error)
 	        {  
@@ -212,6 +222,7 @@ $(document).ready(function()
 	        }
 	        
 	    }); // -- end $.ajax()
+		
 		
 	});	//-- end $("#loginChk").click()
 	
@@ -242,11 +253,33 @@ function listPage(pageNum)
 	$("#submitForm").submit();
 }
 
-// 로그인 없이 글쓰기 버튼 눌렀을 때 로그인 모달 팝업 호출 - 호출 : boardList.jsp
+// 로그인 없이 글쓰기 버튼 눌렀을 때 로그인 모달 팝업 호출
 function loginModal()
 {
-	//alert("로그인 모달 팝업 호출");
-	$("#loginModal").modal();
+	// RSA 키 생성
+	$.ajax(
+	{
+		type:"POST",  
+        url: "/prj01/loginform",
+        success:function(args)
+        {
+        	//console.log("ajax 결과 값 확인 RSAModulus:"+args.RSAModulus+", RSAExponent :"+args.RSAExponent);
+        	//alert("호출 주소 :"+$(location).attr('pathname'));
+        	
+        	$("#RSAModulus").val(args.RSAModulus);
+			$("#RSAExponent").val(args.RSAExponent);
+			
+        	//alert("로그인 모달 팝업 호출");
+        	$("#loginModal").modal();
+        },
+        error:function(request,status,error)
+        {  
+        	alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+
+        }
+	
+	});
+	
 }
 
 

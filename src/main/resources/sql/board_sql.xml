@@ -30,7 +30,7 @@
 			, MEM_BL
 			, MEM_GRADE
 		FROM MEM_INFO
-		WHERE MEM_ID = #{mem_id, jdbcType=VARCHAR} AND MEM_PW = #{mem_pw, jdbcType=VARCHAR}
+		WHERE MEM_ID = #{mem_id} AND MEM_PW = #{mem_pw}
 	</select>
 
 	<!-- 전체 게시물 수 구하기 -->
