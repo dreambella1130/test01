@@ -3,6 +3,7 @@ package com.test.prj01.service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.Resource;
 
@@ -388,6 +389,8 @@ public class BoardService implements IBoardService
 		dao = session.getMapper(IBoardMapper.class);
 		
 		logger.info("***** 컨트롤러에서 넘어온 파라미터 출력 :"+map);
+		
+		map.put("userUUID", UUID.randomUUID().toString());
 		
 		dao.insertJoinUser(map);
 

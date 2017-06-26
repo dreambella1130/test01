@@ -31,7 +31,8 @@
 				MEM_REGI, 
 				MEM_UPDT, 
 				MEM_BL, 
-				MEM_GRADE)
+				MEM_GRADE,
+				MEM_UUID)
 		VALUES
 			(	SEQ_MEM_INFO.NEXTVAL, 
 				#{userName}, 
@@ -42,7 +43,8 @@
 				SYSDATE, 
 				SYSDATE, 
 				'N', 
-				'9')
+				'9',
+				#{userUUID})
 				
 		<selectKey keyProperty="MEM_SID" resultType="String" order="AFTER">
 			SELECT MEM_SID FROM MEM_INFO WHERE MEM_ID = #{userEmail}
