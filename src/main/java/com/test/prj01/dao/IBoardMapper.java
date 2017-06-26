@@ -89,4 +89,7 @@ public interface IBoardMapper
 	// 이메일 / 닉네임 중복 조회
 	public String selectEmailNick(Map<String, String> map);
 	
+	// 회원가입
+	public void insertJoinUser(Map<String, Object> map);
+	
 }

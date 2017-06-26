@@ -263,7 +263,8 @@ function loginModal()
         url: "/prj01/loginform",
         success:function(args)
         {
-        	//console.log("ajax 결과 값 확인 RSAModulus:"+args.RSAModulus+", RSAExponent :"+args.RSAExponent);
+        	console.log("ajax 결과 값 확인 RSAModulus:"+args.RSAModulus);
+        	console.log("ajax 결과 값 확인 RSAExponent :"+args.RSAExponent);
         	//alert("호출 주소 :"+$(location).attr('pathname'));
         	
         	$("#RSAModulus").val(args.RSAModulus);

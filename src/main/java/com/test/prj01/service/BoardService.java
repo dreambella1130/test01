@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.apache.ibatis.session.SqlSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,8 @@ public class BoardService implements IBoardService
 	private SqlSession session;
 	private IBoardMapper dao;
 	
+	@Resource(name="myUtil")
+	private MyUtil myUtil;
 	
 	// 전체 게시물 목록 가져오기
 	@Override
@@ -375,6 +379,21 @@ public class BoardService implements IBoardService
 		logger.info("***** DB 조회 결과 출력 :"+result);
 		
 		return result;
+	}
+
+	// 회원 가입
+	@Override
+	public String insertUserService(Map<String, Object> map) throws Exception
+	{
+		dao = session.getMapper(IBoardMapper.class);
+		
+		logger.info("***** 컨트롤러에서 넘어온 파라미터 출력 :"+map);
+		
+		dao.insertJoinUser(map);
+
+		logger.info("***** 회원 정보 insert 후에 pk값 저장됬는지 출력(key) :"+map.get("MEM_SID")+"***********");
+		
+		return map.get("MEM_SID").toString();
 	}
 	
 	

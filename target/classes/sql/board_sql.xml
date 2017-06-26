@@ -19,6 +19,37 @@
 		</where>
 	</select>
 	
+	<!-- 회원가입 -->
+	<insert id="insertJoinUser" parameterType="java.util.Map">
+		INSERT INTO MEM_INFO
+			(	MEM_SID,
+				MEM_NAME,
+				MEM_BIRTH, 
+				MEM_ID, 
+				MEM_PW, 
+				MEM_NICK, 
+				MEM_REGI, 
+				MEM_UPDT, 
+				MEM_BL, 
+				MEM_GRADE)
+		VALUES
+			(	SEQ_MEM_INFO.NEXTVAL, 
+				#{userName}, 
+				TO_DATE(#{userBirth}, 'YYYYMMDD'),
+				#{userEmail}, 
+				#{password}, 
+				#{userNick}, 
+				SYSDATE, 
+				SYSDATE, 
+				'N', 
+				'9')
+				
+		<selectKey keyProperty="MEM_SID" resultType="String" order="AFTER">
+			SELECT MEM_SID FROM MEM_INFO WHERE MEM_ID = #{userEmail}
+		</selectKey>
+
+	</insert>
+	
 	<!-- 로그인 -->
 	<select id = "selectMemberLogin" parameterType="java.util.Map" resultType="java.util.Map">
 		SELECT MEM_SID
@@ -78,7 +109,7 @@
 	        	, (SELECT COUNT(*) FROM BD_REPL B WHERE B.BD_SID = A.BD_SID) AS "REPLCOUNT"
 	    		, BD_CLI
 	    		, BD_DELCK
-	    		, (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
+	    		, (SELECT MEM_NICK FROM MEM_INFO B WHERE B.MEM_SID = A.MEM_SID) AS "MEM_NICK"
 	    		, BD_LIKE
 	    		, CASE WHEN BD_BLCK < 1 THEN 'N'
 	            	ELSE 'Y'
@@ -250,13 +281,13 @@
 			, BD_GRP_LV
 			, BD_GRP_DEP
 			, MEM_SID
-		    , (SELECT MEM_NICK FROM MEM_INFO A WHERE A.MEM_SID = MEM_SID) AS "MEM_NICK"
+		    , (SELECT MEM_NICK FROM MEM_INFO B WHERE B.MEM_SID = A.MEM_SID) AS "MEM_NICK"
 		    , BD_CLI
 		    , BD_LIKE
 		    , TO_CHAR(BD_REGI, 'YYYY.MM.DD HH24:MI') AS "BD_REGI"
 		    , BD_CONT
 		     , (SELECT COUNT(*) FROM BD_REPL B WHERE B.BD_SID = #{bdSid }) AS "REPLCOUNT"
-		FROM BOARD
+		FROM BOARD A
 		WHERE BD_SID = #{bdSid }
 	]]>
 	</select>

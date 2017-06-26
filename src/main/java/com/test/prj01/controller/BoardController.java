@@ -23,7 +23,6 @@ import com.test.prj01.service.IBoardService;
 import com.test.prj01.service.MyUtil;
 
 @Controller
-@SessionAttributes({"memSid", "memNick"})
 public class BoardController
 {
 	private static final Logger logger = LoggerFactory.getLogger(BoardController.class);

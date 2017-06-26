@@ -53,4 +53,7 @@ public interface IBoardService
 	// 이메일 / 닉네임 중복 조회
 	public String selectEmailNick(Map<String, String> map) throws Exception;
 	
+	// 회원 가입
+	public String insertUserService(Map<String, Object> map) throws Exception;
+	
 }
