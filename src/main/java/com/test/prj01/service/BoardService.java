@@ -390,7 +390,7 @@ public class BoardService implements IBoardService
 		
 		logger.info("***** 컨트롤러에서 넘어온 파라미터 출력 :"+map);
 		
-		map.put("userUUID", UUID.randomUUID().toString());
+		map.put("userUUID", UUID.randomUUID().toString().replace("-", ""));
 		
 		dao.insertJoinUser(map);
 
